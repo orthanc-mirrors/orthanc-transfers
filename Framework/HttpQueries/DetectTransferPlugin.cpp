@@ -29,12 +29,13 @@
 
 namespace OrthancPlugins
 {
-  DetectTransferPlugin::DetectTransferPlugin(std::set<std::string>&  target,
+  DetectTransferPlugin::DetectTransferPlugin(Peers&  target,
                                              const std::string& peer) :
     target_(target),
     peer_(peer),
     uri_(URI_PLUGINS)
   {
+    target_[peer_] = PeerCapabilities_Disabled;
   }
 
 
@@ -59,14 +60,16 @@ namespace OrthancPlugins
         if (value[i].type() == Json::stringValue &&
             value[i].asString() == PLUGIN_NAME)
         {
-          target_.insert(peer_);
+          // The "Bidirectional" status is set in "Plugin.cpp", given
+          // the configuration file
+          target_[peer_] = PeerCapabilities_Installed;
         }
       }
     }
   }
 
 
-  void DetectTransferPlugin::Apply(std::set<std::string>& activePeers,
+  void DetectTransferPlugin::Apply(Peers& peers,
                                    OrthancPluginContext* context,
                                    size_t threadsCount,
                                    unsigned int timeout)
@@ -79,7 +82,7 @@ namespace OrthancPlugins
     for (size_t i = 0; i < queue.GetOrthancPeers().GetPeersCount(); i++)
     {
       queue.Enqueue(new OrthancPlugins::DetectTransferPlugin
-                    (activePeers, queue.GetOrthancPeers().GetPeerName(i)));
+                    (peers, queue.GetOrthancPeers().GetPeerName(i)));
     }
 
     {

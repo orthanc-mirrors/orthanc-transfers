@@ -20,22 +20,26 @@
 #pragma once
 
 #include "IHttpQuery.h"
+#include "../TransferToolbox.h"
 
 #include <orthanc/OrthancCPlugin.h>
-#include <set>
+#include <map>
 
 
 namespace OrthancPlugins
 {
   class DetectTransferPlugin : public IHttpQuery
   {
+  public:
+    typedef std::map<std::string, PeerCapabilities>  Peers;
+    
   private:
-    std::set<std::string>&  target_;
-    std::string             peer_;
-    std::string             uri_;
+    Peers&       target_;
+    std::string  peer_;
+    std::string  uri_;
 
   public:
-    DetectTransferPlugin(std::set<std::string>&  target,
+    DetectTransferPlugin(Peers& target,
                          const std::string& peer);
 
     virtual Orthanc::HttpMethod GetMethod() const
@@ -58,7 +62,7 @@ namespace OrthancPlugins
     virtual void HandleAnswer(const void* answer,
                               size_t size);
 
-    static void Apply(std::set<std::string>& activePeers,
+    static void Apply(Peers& peers,
                       OrthancPluginContext* context,
                       size_t threadsCount,
                       unsigned int timeout);

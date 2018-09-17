@@ -579,16 +579,39 @@ void ServePeers(OrthancPluginRestOutput* output,
     return;
   }
 
-  std::set<std::string> activePeers;
+  OrthancPlugins::DetectTransferPlugin::Peers peers;
   OrthancPlugins::DetectTransferPlugin::Apply
-    (activePeers, context.GetOrthanc(), context.GetThreadsCount(), 2 /* timeout */);
+    (peers, context.GetOrthanc(), context.GetThreadsCount(), 2 /* timeout */);
 
-  Json::Value result = Json::arrayValue;
+  Json::Value result = Json::objectValue;
 
-  for (std::set<std::string>::const_iterator
-         it = activePeers.begin(); it != activePeers.end(); ++it)
+  for (OrthancPlugins::DetectTransferPlugin::Peers::const_iterator
+         it = peers.begin(); it != peers.end(); ++it)
   {
-    result.append(*it);
+    switch (it->second)
+    {
+      case OrthancPlugins::PeerCapabilities_Disabled:
+        result[it->first] = "disabled";
+        break;
+
+      case OrthancPlugins::PeerCapabilities_Installed:
+      {
+        std::string remoteSelf;
+
+        if (context.LookupBidirectionalPeer(remoteSelf, it->first))
+        {    
+          result[it->first] = "installed";
+        }
+        else
+        {
+          result[it->first] = "bidirectional";
+        }
+        break;
+      }
+
+      default:
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
+    }
   }
 
   std::string s = result.toStyledString();

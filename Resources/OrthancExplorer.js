@@ -4,8 +4,6 @@ function TransferAcceleratorSelectPeer(callback)
     .attr('data-divider-theme', 'd')
     .attr('data-role', 'listview');
 
-  items.append('<li data-role="list-divider">Orthanc peers</li>');
-
   $.ajax({
     url: '../transfers/peers',
     type: 'GET',
@@ -13,22 +11,32 @@ function TransferAcceleratorSelectPeer(callback)
     async: false,
     cache: false,
     success: function(peers) {
-      for (var i = 0; i < peers.length; i++) {
-        var name = peers[i];
-        var item = $('<li>')
-          .html('<a href="#" rel="close">' + name + '</a>')
-          .attr('name', name)
-          .click(function() { 
-            clickedPeer = $(this).attr('name');
-          });
-        items.append(item);
+      console.log(peers);
+      var clickedPeer = null;
+      
+      for (var name in peers) {
+        if (peers.hasOwnProperty(name)) {
+          var item = $('<li>')
+              .html('<a href="#" rel="close">' + name + '</a>')
+              .attr('name', name)
+              .click(function() { 
+                clickedPeer = $(this).attr('name');
+              });
+
+          if (peers[name] != 'installed' &&
+              peers[name] != 'bidirectional') {
+            item.addClass('ui-disabled');
+          }
+
+          items.append(item);          
+        }
       }
 
       // Launch the dialog
       $('#dialog').simpledialog2({
         mode: 'blank',
         animate: false,
-        headerText: 'Choose target',
+        headerText: 'Choose Orthanc peer',
         headerClose: true,
         forceInput: false,
         width: '100%',
@@ -38,7 +46,9 @@ function TransferAcceleratorSelectPeer(callback)
           function WaitForDialogToClose() {
             if (!$('#dialog').is(':visible')) {
               clearInterval(timer);
-              callback(clickedPeer);
+              if (clickedPeer !== null) {
+                callback(clickedPeer);
+              }
             }
           }
           timer = setInterval(WaitForDialogToClose, 100);

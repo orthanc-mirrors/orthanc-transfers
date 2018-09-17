@@ -65,6 +65,13 @@ namespace OrthancPlugins
     BucketCompression_Gzip
   };
 
+  enum PeerCapabilities
+  {
+    PeerCapabilities_Disabled,
+    PeerCapabilities_Installed,
+    PeerCapabilities_Bidirectional
+  };
+
   unsigned int ConvertToMegabytes(uint64_t value);
 
   unsigned int ConvertToKilobytes(uint64_t value);
