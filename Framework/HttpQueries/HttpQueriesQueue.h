@@ -76,7 +76,7 @@ namespace OrthancPlugins
 
     void Enqueue(IHttpQuery* query);  // Takes ownership
 
-    bool ExecuteOneQuery(uint64_t& networkTraffic);
+    bool ExecuteOneQuery(size_t& networkTraffic);
 
     Status WaitComplete(unsigned int timeoutMS);
     

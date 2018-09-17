@@ -106,7 +106,7 @@ namespace OrthancPlugins
   }
     
 
-  bool HttpQueriesQueue::ExecuteOneQuery(uint64_t& networkTraffic)
+  bool HttpQueriesQueue::ExecuteOneQuery(size_t& networkTraffic)
   {
     networkTraffic = 0;
       
