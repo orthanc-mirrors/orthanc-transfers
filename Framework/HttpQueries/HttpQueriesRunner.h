@@ -21,6 +21,9 @@
 
 #include "HttpQueriesQueue.h"
 
+#include <boost/thread.hpp>
+
+
 namespace OrthancPlugins
 {
   class HttpQueriesRunner : public boost::noncopyable
