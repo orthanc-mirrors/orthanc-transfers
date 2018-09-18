@@ -1,4 +1,4 @@
-function TransferAcceleratorSelectPeer(callback)
+function TransfersAcceleratorSelectPeer(callback)
 {
   var items = $('<ul>')
     .attr('data-divider-theme', 'd')
@@ -59,21 +59,21 @@ function TransferAcceleratorSelectPeer(callback)
 }
 
 
-function TransferAcceleratorAddSendButton(level, siblingButton)
+function TransfersAcceleratorAddSendButton(level, siblingButton)
 {
   var b = $('<a>')
     .attr('data-role', 'button')
     .attr('href', '#')
     .attr('data-icon', 'search')
     .attr('data-theme', 'e')
-    .text('Transfer accelerator');
+    .text('Transfers accelerator');
 
   b.insertBefore($(siblingButton).parent().parent());
 
   b.click(function() {
     if ($.mobile.pageData) {
       var uuid = $.mobile.pageData.uuid;
-      TransferAcceleratorSelectPeer(function(peer) {
+      TransfersAcceleratorSelectPeer(function(peer) {
         console.log('Sending ' + level + ' ' + uuid + ' to peer ' + peer);
 
         var query = {
@@ -109,13 +109,13 @@ function TransferAcceleratorAddSendButton(level, siblingButton)
 
 
 $('#patient').live('pagebeforecreate', function() {
-  TransferAcceleratorAddSendButton('Patient', '#patient-delete');
+  TransfersAcceleratorAddSendButton('Patient', '#patient-delete');
 });
 
 $('#study').live('pagebeforecreate', function() {
-  TransferAcceleratorAddSendButton('Study', '#study-delete');
+  TransfersAcceleratorAddSendButton('Study', '#study-delete');
 });
 
 $('#series').live('pagebeforecreate', function() {
-  TransferAcceleratorAddSendButton('Series', '#series-delete');
+  TransfersAcceleratorAddSendButton('Series', '#series-delete');
 });

@@ -8,38 +8,9 @@ General information
 This repository contains the source code of a plugin for Orthanc that
 speeds up the transfers of DICOM instances over Internet.
 
-The plugin can be used to send local images to remote Orthanc peers,
-or to retrieve images stored on remote Orthanc peers.
-
-Technically, this plugin extends the REST API of Orthanc with
-endpoints that optimize the use of the network bandwidth over the HTTP
-and HTTPS protocols, through the combination of the following
-mechanisms:
-
-* Small DICOM instances are grouped together to form so-called
-  "buckets" of some megabytes in order to reduce the number of HTTP
-  handshakes.
-
-* Large DICOM instances are split as a set of smaller buckets in order
-  to bypass nasty effects of TCP congestion control on low-quality
-  network links.
-
-* Buckets are download concurrently by several threads.
-
-* Buckets can be individually compressed using the gzip algorithm,
-  hereby reducing the network usage. On a typical medical image, this
-  can divide the volume of the transmission by a factor 2 to 3, at the
-  price of a larger CPU usage.
-
-* Sending images to remote Orthanc peers can either be done with HTTP
-  PUT requests (so-called "push mode"), or with HTTP GET requests if
-  the local Orthanc server has a public IP address (so-called "pull
-  mode").
-
-Note that the protocol is built over HTTP/HTTPS (and not directly over
-TCP), making it friendly with network firewalls and Web caches. Also,
-the plugin takes advantage of the jobs engine of Orthanc, so that
-transfers can be easily paused/canceled/resubmitted.
+Instructions for the compilation and usage of the plugin is part of
+the Orthanc Book:
+http://book.orthanc-server.com/plugins/transfers.html
 
 
 Content
@@ -47,15 +18,8 @@ Content
 
 * ./Framework/         - Core C++ framework
 * ./Plugin/            - Source code of the plugin
-* ./Resources/         - 
+* ./Resources/         - Static resources
 * ./UnitTestsSources/  - Unit tests
-
-
-Compilation and usage
----------------------
-
-The compilation and usage of the plugin is part of the Orthanc Book:
-http://book.orthanc-server.com/plugins/transfers.html
 
 
 Licensing
