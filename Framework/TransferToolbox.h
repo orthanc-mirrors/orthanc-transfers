@@ -30,7 +30,6 @@ static const char* const JOB_TYPE_PUSH = "PushTransfer";
 
 static const char* const PLUGIN_NAME = "transfers";
 
-static const char* const KEY_BIDIRECTIONAL_PEERS = "BidirectionalPeers";
 static const char* const KEY_BUCKETS = "Buckets";
 static const char* const KEY_COMPRESSION = "Compression";
 static const char* const KEY_ID = "ID";
@@ -43,6 +42,7 @@ static const char* const KEY_PEER = "Peer";
 static const char* const KEY_PLUGIN_CONFIGURATION = "Transfers";
 static const char* const KEY_PRIORITY = "Priority";
 static const char* const KEY_REMOTE_JOB = "RemoteJob";
+static const char* const KEY_REMOTE_SELF = "RemoteSelf";
 static const char* const KEY_RESOURCES = "Resources";
 static const char* const KEY_SIZE = "Size";
 static const char* const KEY_URL = "URL";
@@ -63,13 +63,6 @@ namespace OrthancPlugins
   {
     BucketCompression_None,
     BucketCompression_Gzip
-  };
-
-  enum PeerCapabilities
-  {
-    PeerCapabilities_Disabled,
-    PeerCapabilities_Installed,
-    PeerCapabilities_Bidirectional
   };
 
   unsigned int ConvertToMegabytes(uint64_t value);

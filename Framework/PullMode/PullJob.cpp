@@ -193,9 +193,8 @@ namespace OrthancPlugins
       if (job_.query_.HasOriginator() &&
           job_.query_.GetOriginator() != answer[KEY_ORIGINATOR_UUID].asString())
       {
-        LOG(ERROR) << "Invalid originator, check out the \""
-                   << KEY_PLUGIN_CONFIGURATION << "." << KEY_BIDIRECTIONAL_PEERS
-                   << "\" configuration option";
+        LOG(ERROR) << "Invalid originator, check out the \"" << KEY_REMOTE_SELF
+                   << "\" configuration option of peer: " << job_.query_.GetPeer();
         return StateUpdate::Failure();
       }
 

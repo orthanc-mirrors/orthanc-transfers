@@ -58,23 +58,6 @@ namespace OrthancPlugins
   }
 
   
-  bool PluginContext::LookupBidirectionalPeer(std::string& remoteSelf,
-                                              const std::string& remotePeer) const
-  {
-    BidirectionalPeers::const_iterator found = bidirectionalPeers_.find(remotePeer);
-
-    if (found == bidirectionalPeers_.end())
-    {
-      return false;
-    }
-    else
-    {
-      remoteSelf = found->second;
-      return true;
-    }
-  }
-  
-
   void PluginContext::Initialize(OrthancPluginContext* context,
                                  size_t threadsCount,
                                  size_t targetBucketSize,

@@ -31,8 +31,6 @@ namespace OrthancPlugins
   class PluginContext : public boost::noncopyable
   {
   private:
-    typedef std::map<std::string, std::string>  BidirectionalPeers;
-    
     // Runtime structures
     OrthancPluginContext*    context_;
     OrthancInstancesCache    cache_;
@@ -43,7 +41,6 @@ namespace OrthancPlugins
     // Configuration
     size_t                   threadsCount_;
     size_t                   targetBucketSize_;
-    BidirectionalPeers       bidirectionalPeers_;
 
   
     PluginContext(OrthancPluginContext* context,
@@ -90,20 +87,6 @@ namespace OrthancPlugins
       return targetBucketSize_;
     }
 
-    void AddBidirectionalPeer(const std::string& remotePeer,
-                              const std::string& remoteSelf)
-    {
-      bidirectionalPeers_[remotePeer] = remoteSelf;
-    }
-
-    void LoadBidirectionalPeers(const BidirectionalPeers& peers)
-    {
-      bidirectionalPeers_ = peers;
-    }
-
-    bool LookupBidirectionalPeer(std::string& remoteSelf,
-                                 const std::string& remotePeer) const;
-  
     static void Initialize(OrthancPluginContext* context,
                            size_t threadsCount,
                            size_t targetBucketSize,

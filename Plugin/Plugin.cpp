@@ -438,16 +438,16 @@ void ScheduleSend(OrthancPluginRestOutput* output,
 
   OrthancPlugins::TransferQuery query(body);
 
+  OrthancPlugins::OrthancPeers peers(context.GetOrthanc());
+  
   std::string remoteSelf;  // For pull mode
-  bool pullMode = context.LookupBidirectionalPeer(remoteSelf, query.GetPeer());
+  bool pullMode = peers.LookupUserProperty(remoteSelf, query.GetPeer(), KEY_REMOTE_SELF);
 
   LOG(INFO) << "Sending resources to peer \"" << query.GetPeer() << "\" using "
             << (pullMode ? "pull" : "push") << " mode";
 
   if (pullMode)
   {
-    OrthancPlugins::OrthancPeers peers(context.GetOrthanc());
-
     Json::Value lookup = Json::objectValue;
     lookup[KEY_RESOURCES] = query.GetResources();
     lookup[KEY_COMPRESSION] = OrthancPlugins::EnumerationToString(query.GetCompression());
@@ -579,38 +579,33 @@ void ServePeers(OrthancPluginRestOutput* output,
     return;
   }
 
-  OrthancPlugins::DetectTransferPlugin::Peers peers;
+  OrthancPlugins::DetectTransferPlugin::Result detection;
   OrthancPlugins::DetectTransferPlugin::Apply
-    (peers, context.GetOrthanc(), context.GetThreadsCount(), 2 /* timeout */);
+    (detection, context.GetOrthanc(), context.GetThreadsCount(), 2 /* timeout */);
 
   Json::Value result = Json::objectValue;
 
-  for (OrthancPlugins::DetectTransferPlugin::Peers::const_iterator
-         it = peers.begin(); it != peers.end(); ++it)
+  OrthancPlugins::OrthancPeers peers(context.GetOrthanc());
+
+  for (OrthancPlugins::DetectTransferPlugin::Result::const_iterator
+         it = detection.begin(); it != detection.end(); ++it)
   {
-    switch (it->second)
+    if (it->second)
     {
-      case OrthancPlugins::PeerCapabilities_Disabled:
-        result[it->first] = "disabled";
-        break;
+      std::string remoteSelf;
 
-      case OrthancPlugins::PeerCapabilities_Installed:
-      {
-        std::string remoteSelf;
-
-        if (context.LookupBidirectionalPeer(remoteSelf, it->first))
-        {    
-          result[it->first] = "installed";
-        }
-        else
-        {
-          result[it->first] = "bidirectional";
-        }
-        break;
+      if (peers.LookupUserProperty(remoteSelf, it->first, KEY_REMOTE_SELF))
+      {    
+        result[it->first] = "bidirectional";
       }
-
-      default:
-        throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
+      else
+      {
+        result[it->first] = "installed";
+      }
+    }
+    else
+    {
+      result[it->first] = "disabled";
     }
   }
 
@@ -658,7 +653,6 @@ extern "C"
           OrthancPlugins::OrthancConfiguration plugin;
           config.GetSection(plugin, KEY_PLUGIN_CONFIGURATION);
 
-          plugin.GetDictionary(bidirectionalPeers, KEY_BIDIRECTIONAL_PEERS);
           threadsCount = plugin.GetUnsignedIntegerValue("Threads", threadsCount);
           targetBucketSize = plugin.GetUnsignedIntegerValue("BucketSize", targetBucketSize);
           memoryCacheSize = plugin.GetUnsignedIntegerValue("CacheSize", memoryCacheSize);
@@ -669,7 +663,6 @@ extern "C"
 
       OrthancPlugins::PluginContext::Initialize
         (context, threadsCount, targetBucketSize * KB, maxPushTransactions, memoryCacheSize * MB);
-      OrthancPlugins::PluginContext::GetInstance().LoadBidirectionalPeers(bidirectionalPeers);
     
       OrthancPlugins::RegisterRestCallback<ServeChunks>
         (context, std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);

@@ -31,15 +31,15 @@ namespace OrthancPlugins
   class DetectTransferPlugin : public IHttpQuery
   {
   public:
-    typedef std::map<std::string, PeerCapabilities>  Peers;
+    typedef std::map<std::string, bool>  Result;
     
   private:
-    Peers&       target_;
+    Result&      result_;
     std::string  peer_;
     std::string  uri_;
 
   public:
-    DetectTransferPlugin(Peers& target,
+    DetectTransferPlugin(Result& result,
                          const std::string& peer);
 
     virtual Orthanc::HttpMethod GetMethod() const
@@ -62,7 +62,7 @@ namespace OrthancPlugins
     virtual void HandleAnswer(const void* answer,
                               size_t size);
 
-    static void Apply(Peers& peers,
+    static void Apply(Result& result,
                       OrthancPluginContext* context,
                       size_t threadsCount,
                       unsigned int timeout);

@@ -223,7 +223,7 @@ namespace OrthancPlugins
         }
         else
         {
-          LOG(ERROR) << "Reached the maximum number of retries for a HTTP query";
+          LOG(INFO) << "Reached the maximum number of retries for a HTTP query";
 
           {
             boost::mutex::scoped_lock lock(mutex_);
