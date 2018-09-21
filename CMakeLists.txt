@@ -33,7 +33,7 @@ endif()
 set(ORTHANC_FRAMEWORK_SOURCE "${ORTHANC_FRAMEWORK_DEFAULT_SOURCE}" CACHE STRING "Source of the Orthanc source code (can be \"hg\", \"archive\", \"web\" or \"path\")")
 set(ORTHANC_FRAMEWORK_ARCHIVE "" CACHE STRING "Path to the Orthanc archive, if ORTHANC_FRAMEWORK_SOURCE is \"archive\"")
 set(ORTHANC_FRAMEWORK_ROOT "" CACHE STRING "Path to the Orthanc source directory, if ORTHANC_FRAMEWORK_SOURCE is \"path\"")
-set(ORTHANC_SDK_VERSION "framework" CACHE STRING "Version of the Orthanc plugin SDK to use, if not using the system version (can be \"1.4.2\" or \"framework\")")
+set(ORTHANC_SDK_VERSION "1.4.2" CACHE STRING "Version of the Orthanc plugin SDK to use, if not using the system version (can be \"1.4.2\" or \"framework\")")
 
 # Advanced parameters to fine-tune linking against system libraries
 set(USE_SYSTEM_ORTHANC_SDK ON CACHE BOOL "Use the system version of the Orthanc plugin SDK")

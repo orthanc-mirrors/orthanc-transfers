@@ -51,13 +51,13 @@ for f in FILES:
                       os.path.join('Resources', f),
                       f ])
 
-#for version in PLUGIN_SDK_VERSION:
-#    for f in SDK:
-#        commands.append([
-#            'Orthanc-%s' % version, 
-#            'Plugins/Include/%s' % f,
-#            'Sdk-%s/%s' % (version, f) 
-#        ])
+for version in PLUGIN_SDK_VERSION:
+    for f in SDK:
+        commands.append([
+            'Orthanc-%s' % version, 
+            'Plugins/Include/%s' % f,
+            'Sdk-%s/%s' % (version, f) 
+        ])
 
 
 pool = multiprocessing.Pool(10)  # simultaneous downloads
