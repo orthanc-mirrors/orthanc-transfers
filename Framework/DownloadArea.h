@@ -48,8 +48,7 @@ namespace OrthancPlugins
                       const void* data,
                       size_t size);
 
-      void Commit(OrthancPluginContext* context,
-                  bool simulate) const;
+      void Commit(bool simulate) const;
     };
 
 
@@ -70,8 +69,7 @@ namespace OrthancPlugins
 
     void Setup(const std::vector<DicomInstanceInfo>& instances);
     
-    void CommitInternal(OrthancPluginContext* context,
-                        bool simulate);
+    void CommitInternal(bool simulate);
 
   public:
     DownloadArea(const TransferScheduler& scheduler);
@@ -102,6 +100,6 @@ namespace OrthancPlugins
 
     void CheckMD5();
 
-    void Commit(OrthancPluginContext* context);
+    void Commit();
   };
 }

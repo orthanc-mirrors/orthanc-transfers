@@ -22,7 +22,6 @@
 #include "IHttpQuery.h"
 #include "../TransferToolbox.h"
 
-#include <orthanc/OrthancCPlugin.h>
 #include <map>
 
 
@@ -63,7 +62,6 @@ namespace OrthancPlugins
                               size_t size);
 
     static void Apply(Result& result,
-                      OrthancPluginContext* context,
                       size_t threadsCount,
                       unsigned int timeout);
   };

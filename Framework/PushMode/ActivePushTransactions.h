@@ -21,7 +21,6 @@
 
 #include "../TransferBucket.h"
 
-#include <orthanc/OrthancCPlugin.h>
 #include <Core/Cache/LeastRecentlyUsedIndex.h>
 
 #include <boost/thread/mutex.hpp>
@@ -41,8 +40,7 @@ namespace OrthancPlugins
     Index         index_;
     size_t        maxSize_;
 
-    void FinalizeTransaction(OrthancPluginContext* context,
-                             const std::string& transactionUuid,
+    void FinalizeTransaction(const std::string& transactionUuid,
                              bool commit);
 
   public:
@@ -59,21 +57,19 @@ namespace OrthancPlugins
                                   const std::vector<TransferBucket>& buckets,
                                   BucketCompression compression);
 
-    void Store(OrthancPluginContext* context,
-               const std::string& transactionUuid,
+    void Store(const std::string& transactionUuid,
                size_t bucketIndex,
                const void* data,
                size_t size);
 
-    void Commit(OrthancPluginContext* context,
-                const std::string& transactionUuid)
+    void Commit(const std::string& transactionUuid)
     {
-      FinalizeTransaction(context, transactionUuid, true);
+      FinalizeTransaction(transactionUuid, true);
     }
 
     void Discard(const std::string& transactionUuid)
     {
-      FinalizeTransaction(NULL, transactionUuid, false);
+      FinalizeTransaction(transactionUuid, false);
     }
   };
 }

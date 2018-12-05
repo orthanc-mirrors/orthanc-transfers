@@ -60,12 +60,11 @@ namespace OrthancPlugins
     typedef Orthanc::LeastRecentlyUsedIndex<std::string>  Index;
     typedef std::map<std::string, SourceDicomInstance*>   Content;
 
-    OrthancPluginContext*  context_;
-    boost::mutex           mutex_;
-    Index                  index_;
-    Content                content_;
-    size_t                 memorySize_;
-    size_t                 maxMemorySize_;
+    boost::mutex   mutex_;
+    Index          index_;
+    Content        content_;
+    size_t         memorySize_;
+    size_t         maxMemorySize_;
 
 
     // The mutex must be locked!
@@ -80,14 +79,9 @@ namespace OrthancPlugins
     
 
   public:
-    OrthancInstancesCache(OrthancPluginContext* context);
+    OrthancInstancesCache();
 
     ~OrthancInstancesCache();
-
-    OrthancPluginContext* GetContext() const
-    {
-      return context_;
-    }    
 
     size_t GetMemorySize();
 

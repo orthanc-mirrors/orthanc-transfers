@@ -26,13 +26,11 @@
 
 namespace OrthancPlugins
 {
-  SourceDicomInstance::SourceDicomInstance(OrthancPluginContext* context,
-                                           const std::string& instanceId) :
-    context_(context)
+  SourceDicomInstance::SourceDicomInstance(const std::string& instanceId)
   {
     LOG(INFO) << "Transfers accelerator reading DICOM instance: " << instanceId;
       
-    MemoryBuffer buffer(context);
+    MemoryBuffer buffer;
     buffer.GetDicomInstance(instanceId);
 
     info_.reset(new DicomInstanceInfo(instanceId, buffer));
@@ -43,7 +41,7 @@ namespace OrthancPlugins
   
   SourceDicomInstance::~SourceDicomInstance()
   {
-    OrthancPluginFreeMemoryBuffer(context_, &buffer_);
+    OrthancPluginFreeMemoryBuffer(OrthancPlugins::GetGlobalContext(), &buffer_);
   }
 
 

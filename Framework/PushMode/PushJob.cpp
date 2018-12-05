@@ -128,8 +128,7 @@ namespace OrthancPlugins
                      const std::vector<TransferBucket>& buckets) :
       job_(job),
       info_(info),
-      transactionUri_(transactionUri),
-      queue_(job.context_)
+      transactionUri_(transactionUri)
     {
       queue_.Reserve(buckets.size());
         
@@ -246,18 +245,15 @@ namespace OrthancPlugins
   }
     
     
-  PushJob::PushJob(OrthancPluginContext* context,
-                   const TransferQuery& query,
+  PushJob::PushJob(const TransferQuery& query,
                    OrthancInstancesCache& cache,
                    size_t threadsCount,
                    size_t targetBucketSize) :
     StatefulOrthancJob(JOB_TYPE_PUSH),
-    context_(context),
     cache_(cache),
     query_(query),
     threadsCount_(threadsCount),
-    targetBucketSize_(targetBucketSize),
-    peers_(context)
+    targetBucketSize_(targetBucketSize)
   {
     if (!peers_.LookupName(peerIndex_, query_.GetPeer()))
     {

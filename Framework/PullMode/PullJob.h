@@ -32,18 +32,16 @@ namespace OrthancPlugins
     class PullBucketsState;
     class CommitState;
 
-    OrthancPluginContext  *context_;
-    TransferQuery          query_;
-    size_t                 threadsCount_;
-    size_t                 targetBucketSize_;
-    OrthancPeers           peers_;
-    size_t                 peerIndex_;
+    TransferQuery  query_;
+    size_t         threadsCount_;
+    size_t         targetBucketSize_;
+    OrthancPeers   peers_;
+    size_t         peerIndex_;
 
     virtual StateUpdate* CreateInitialState(JobInfo& info);    
     
   public:
-    PullJob(OrthancPluginContext* context,
-            const TransferQuery& query,
+    PullJob(const TransferQuery& query,
             size_t threadsCount,
             size_t targetBucketSize);
   };

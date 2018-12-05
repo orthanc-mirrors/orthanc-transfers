@@ -31,13 +31,11 @@ namespace OrthancPlugins
   class SourceDicomInstance : public boost::noncopyable
   {
   private:
-    OrthancPluginContext*             context_;
     OrthancPluginMemoryBuffer         buffer_;
     std::auto_ptr<DicomInstanceInfo>  info_;
 
   public:
-    SourceDicomInstance(OrthancPluginContext* context,
-                        const std::string& instanceId);
+    SourceDicomInstance(const std::string& instanceId);
 
     ~SourceDicomInstance();
 

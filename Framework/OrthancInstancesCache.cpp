@@ -153,15 +153,10 @@ namespace OrthancPlugins
   }
     
 
-  OrthancInstancesCache::OrthancInstancesCache(OrthancPluginContext* context) :
-    context_(context),
+  OrthancInstancesCache::OrthancInstancesCache() :
     memorySize_(0),
     maxMemorySize_(512 * MB)  // 512 MB by default
   {
-    if (context == NULL)
-    {
-      throw Orthanc::OrthancException(Orthanc::ErrorCode_NullPointer);
-    }
   }
     
 
@@ -227,7 +222,7 @@ namespace OrthancPlugins
     }
       
     // The instance was not in the cache, load it
-    std::auto_ptr<SourceDicomInstance> instance(new SourceDicomInstance(context_, instanceId));
+    std::auto_ptr<SourceDicomInstance> instance(new SourceDicomInstance(instanceId));
     size = instance->GetInfo().GetSize();
     md5 = instance->GetInfo().GetMD5();
 
@@ -256,7 +251,7 @@ namespace OrthancPlugins
     }
       
     // The instance was not in the cache, load it
-    std::auto_ptr<SourceDicomInstance> instance(new SourceDicomInstance(context_, instanceId));
+    std::auto_ptr<SourceDicomInstance> instance(new SourceDicomInstance(instanceId));
     instance->GetChunk(chunk, md5, 0, instance->GetInfo().GetSize());
 
     // Store the just-loaded DICOM instance into the cache

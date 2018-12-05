@@ -97,8 +97,7 @@ namespace OrthancPlugins
   }
 
   
-  void DownloadArea::Instance::Commit(OrthancPluginContext* context,
-                                      bool simulate) const
+  void DownloadArea::Instance::Commit(bool simulate) const
   {
     std::string content;
     Orthanc::SystemToolbox::ReadFile(content, file_.GetPath());
@@ -110,13 +109,8 @@ namespace OrthancPlugins
     {
       if (!simulate)
       {
-        if (context == NULL)
-        {
-          throw Orthanc::OrthancException(Orthanc::ErrorCode_NullPointer);
-        }
-
         Json::Value result;
-        if (!RestApiPost(result, context, "/instances", 
+        if (!RestApiPost(result, "/instances", 
                          content.empty() ? NULL : content.c_str(), content.size(),
                          false))
         {
@@ -225,8 +219,7 @@ namespace OrthancPlugins
   }
     
 
-  void DownloadArea::CommitInternal(OrthancPluginContext* context,
-                                    bool simulate)
+  void DownloadArea::CommitInternal(bool simulate)
   {
     boost::mutex::scoped_lock lock(mutex_);
       
@@ -235,7 +228,7 @@ namespace OrthancPlugins
     {
       if (it->second != NULL)
       {
-        it->second->Commit(context, simulate);
+        it->second->Commit(simulate);
         delete it->second;
         it->second = NULL;
       }
@@ -313,13 +306,13 @@ namespace OrthancPlugins
   void DownloadArea::CheckMD5()
   {
     LOG(INFO) << "Checking MD5 sum without committing (testing)";
-    CommitInternal(NULL, true);
+    CommitInternal(true);
   }
 
 
-  void DownloadArea::Commit(OrthancPluginContext* context)
+  void DownloadArea::Commit()
   {
     LOG(INFO) << "Importing transfered DICOM files from the temporary download area into Orthanc";
-    CommitInternal(context, false);
+    CommitInternal(false);
   }
 }

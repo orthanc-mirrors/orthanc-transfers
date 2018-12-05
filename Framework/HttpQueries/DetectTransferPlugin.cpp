@@ -68,11 +68,10 @@ namespace OrthancPlugins
 
 
   void DetectTransferPlugin::Apply(Result& result,
-                                   OrthancPluginContext* context,
                                    size_t threadsCount,
                                    unsigned int timeout)
   {
-    OrthancPlugins::HttpQueriesQueue queue(context);
+    OrthancPlugins::HttpQueriesQueue queue;
 
     queue.GetOrthancPeers().SetTimeout(timeout);
     queue.Reserve(queue.GetOrthancPeers().GetPeersCount());

@@ -24,13 +24,10 @@
 
 namespace OrthancPlugins
 {
-  PluginContext::PluginContext(OrthancPluginContext* context,
-                               size_t threadsCount,
+  PluginContext::PluginContext(size_t threadsCount,
                                size_t targetBucketSize,
                                size_t maxPushTransactions,
                                size_t memoryCacheSize) :
-    context_(context),
-    cache_(context),
     pushTransactions_(maxPushTransactions),
     semaphore_(threadsCount),
     threadsCount_(threadsCount),
@@ -58,13 +55,12 @@ namespace OrthancPlugins
   }
 
   
-  void PluginContext::Initialize(OrthancPluginContext* context,
-                                 size_t threadsCount,
+  void PluginContext::Initialize(size_t threadsCount,
                                  size_t targetBucketSize,
                                  size_t maxPushTransactions,
                                  size_t memoryCacheSize)
   {
-    GetSingleton().reset(new PluginContext(context, threadsCount, targetBucketSize,
+    GetSingleton().reset(new PluginContext(threadsCount, targetBucketSize,
                                            maxPushTransactions, memoryCacheSize));
   }
 

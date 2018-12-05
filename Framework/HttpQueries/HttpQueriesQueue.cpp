@@ -41,9 +41,7 @@ namespace OrthancPlugins
   }
 
 
-  HttpQueriesQueue::HttpQueriesQueue(OrthancPluginContext* context) :
-    context_(context),
-    peers_(context),
+  HttpQueriesQueue::HttpQueriesQueue() :
     maxRetries_(0)
   {
     Reset();
@@ -142,7 +140,7 @@ namespace OrthancPlugins
 
     for (;;)
     {
-      MemoryBuffer answer(context_);
+      MemoryBuffer answer;
 
       bool success;
 

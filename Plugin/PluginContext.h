@@ -32,7 +32,6 @@ namespace OrthancPlugins
   {
   private:
     // Runtime structures
-    OrthancPluginContext*    context_;
     OrthancInstancesCache    cache_;
     ActivePushTransactions   pushTransactions_;
     Orthanc::Semaphore       semaphore_;
@@ -43,8 +42,7 @@ namespace OrthancPlugins
     size_t                   targetBucketSize_;
 
   
-    PluginContext(OrthancPluginContext* context,
-                  size_t threadsCount,
+    PluginContext(size_t threadsCount,
                   size_t targetBucketSize,
                   size_t maxPushTransactions,
                   size_t memoryCacheSize);
@@ -52,11 +50,6 @@ namespace OrthancPlugins
     static std::auto_ptr<PluginContext>& GetSingleton();
   
   public:
-    OrthancPluginContext* GetOrthanc()
-    {
-      return context_;
-    }
-    
     OrthancInstancesCache& GetCache()
     {
       return cache_;
@@ -87,8 +80,7 @@ namespace OrthancPlugins
       return targetBucketSize_;
     }
 
-    static void Initialize(OrthancPluginContext* context,
-                           size_t threadsCount,
+    static void Initialize(size_t threadsCount,
                            size_t targetBucketSize,
                            size_t maxPushTransactions,
                            size_t memoryCacheSize);

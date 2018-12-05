@@ -46,7 +46,7 @@ namespace OrthancPlugins
 
     virtual StateUpdate* Step()
     {
-      area_->Commit(job_.context_);
+      area_->Commit();
       return StateUpdate::Success();
     }
 
@@ -93,7 +93,6 @@ namespace OrthancPlugins
                      const TransferScheduler& scheduler) :
       job_(job),
       info_(info),
-      queue_(job.context_),
       area_(new DownloadArea(scheduler))
     {
       const std::string baseUrl = job.peers_.GetPeerUrl(job.query_.GetPeer());
@@ -229,16 +228,13 @@ namespace OrthancPlugins
   }
     
     
-  PullJob::PullJob(OrthancPluginContext* context,
-                   const TransferQuery& query,
+  PullJob::PullJob(const TransferQuery& query,
                    size_t threadsCount,
                    size_t targetBucketSize) :
     StatefulOrthancJob(JOB_TYPE_PULL),
-    context_(context),
     query_(query),
     threadsCount_(threadsCount),
-    targetBucketSize_(targetBucketSize),
-    peers_(context)
+    targetBucketSize_(targetBucketSize)
   {
     if (!peers_.LookupName(peerIndex_, query_.GetPeer()))
     {

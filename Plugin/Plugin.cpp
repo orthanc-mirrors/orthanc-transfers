@@ -69,7 +69,7 @@ void ServeChunks(OrthancPluginRestOutput* output,
   
   if (request->method != OrthancPluginHttpMethod_Get)
   {
-    OrthancPluginSendMethodNotAllowed(context.GetOrthanc(), output, "GET");
+    OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "GET");
     return;
   }
   
@@ -159,7 +159,7 @@ void ServeChunks(OrthancPluginRestOutput* output,
   {
     case OrthancPlugins::BucketCompression_None:
     {
-      OrthancPluginAnswerBuffer(context.GetOrthanc(), output, chunk.c_str(),
+      OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, chunk.c_str(),
                                 chunk.size(), "application/octet-stream");
       break;
     }
@@ -170,7 +170,7 @@ void ServeChunks(OrthancPluginRestOutput* output,
       Orthanc::GzipCompressor gzip;
       //gzip.SetCompressionLevel(9);
       Orthanc::IBufferCompressor::Compress(compressed, gzip, chunk);
-      OrthancPluginAnswerBuffer(context.GetOrthanc(), output, compressed.c_str(),
+      OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, compressed.c_str(),
                                 compressed.size(), "application/gzip");
       break;
     }
@@ -186,13 +186,11 @@ static bool ParsePostBody(Json::Value& body,
                           OrthancPluginRestOutput* output,
                           const OrthancPluginHttpRequest* request)
 {
-  OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
-  
   Json::Reader reader;
 
   if (request->method != OrthancPluginHttpMethod_Post)
   {
-    OrthancPluginSendMethodNotAllowed(context.GetOrthanc(), output, "POST");
+    OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "POST");
     return false;
   }
   else if (reader.parse(request->body, request->body + request->bodySize, body))
@@ -241,7 +239,7 @@ void LookupInstances(OrthancPluginRestOutput* output,
   Json::FastWriter writer;
   std::string s = writer.write(answer);
   
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -250,16 +248,14 @@ static void SubmitJob(OrthancPluginRestOutput* output,
                       OrthancPlugins::OrthancJob* job,
                       int priority)
 {
-  OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
-  
-  std::string id = OrthancPlugins::OrthancJob::Submit(context.GetOrthanc(), job, priority);
+  std::string id = OrthancPlugins::OrthancJob::Submit(job, priority);
 
   Json::Value result = Json::objectValue;
   result[KEY_ID] = id;
   result[KEY_PATH] = std::string(URI_JOBS) + "/" + id;
 
   std::string s = result.toStyledString();
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -278,9 +274,8 @@ void SchedulePull(OrthancPluginRestOutput* output,
 
   OrthancPlugins::TransferQuery query(body);
 
-  SubmitJob(output, new OrthancPlugins::PullJob(context.GetOrthanc(), query,
-                                                context.GetThreadsCount(),
-                                                context.GetTargetBucketSize()),
+  SubmitJob(output, new OrthancPlugins::PullJob(
+              query, context.GetThreadsCount(), context.GetTargetBucketSize()),
             query.GetPriority());
 }
 
@@ -338,7 +333,7 @@ void CreatePush(OrthancPluginRestOutput* output,
   result[KEY_PATH] = std::string(URI_PUSH) + "/" + id;
 
   std::string s = result.toStyledString();  
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -350,7 +345,7 @@ void StorePush(OrthancPluginRestOutput* output,
   
   if (request->method != OrthancPluginHttpMethod_Put)
   {
-    OrthancPluginSendMethodNotAllowed(context.GetOrthanc(), output, "PUT");
+    OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "PUT");
     return;
   }
 
@@ -370,10 +365,10 @@ void StorePush(OrthancPluginRestOutput* output,
   }
 
   context.GetActivePushTransactions().Store
-    (context.GetOrthanc(), transaction, chunkIndex, request->body, request->bodySize);
+    (transaction, chunkIndex, request->body, request->bodySize);
 
   std::string s = "{}";
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -385,18 +380,17 @@ void CommitPush(OrthancPluginRestOutput* output,
   
   if (request->method != OrthancPluginHttpMethod_Post)
   {
-    OrthancPluginSendMethodNotAllowed(context.GetOrthanc(), output, "POST");
+    OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "POST");
     return;
   }
 
   assert(request->groupsCount == 1);
   std::string transaction(request->groups[0]);
 
-  context.
-    GetActivePushTransactions().Commit(context.GetOrthanc(), transaction);
+  context.GetActivePushTransactions().Commit(transaction);
 
   std::string s = "{}";
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -408,7 +402,7 @@ void DiscardPush(OrthancPluginRestOutput* output,
   
   if (request->method != OrthancPluginHttpMethod_Delete)
   {
-    OrthancPluginSendMethodNotAllowed(context.GetOrthanc(), output, "DELETE");
+    OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "DELETE");
     return;
   }
 
@@ -419,7 +413,7 @@ void DiscardPush(OrthancPluginRestOutput* output,
     GetActivePushTransactions().Discard(transaction);
 
   std::string s = "{}";
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -438,7 +432,7 @@ void ScheduleSend(OrthancPluginRestOutput* output,
 
   OrthancPlugins::TransferQuery query(body);
 
-  OrthancPlugins::OrthancPeers peers(context.GetOrthanc());
+  OrthancPlugins::OrthancPeers peers;
   
   std::string remoteSelf;  // For pull mode
   bool pullMode = peers.LookupUserProperty(remoteSelf, query.GetPeer(), KEY_REMOTE_SELF);
@@ -473,7 +467,7 @@ void ScheduleSend(OrthancPluginRestOutput* output,
       result[KEY_URL] = url + answer[KEY_PATH].asString();
 
       std::string s = result.toStyledString();  
-      OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+      OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
     }
     else
     {
@@ -484,10 +478,8 @@ void ScheduleSend(OrthancPluginRestOutput* output,
   }
   else
   {
-    SubmitJob(output, new OrthancPlugins::PushJob(context.GetOrthanc(), query,
-                                                  context.GetCache(),
-                                                  context.GetThreadsCount(),
-                                                  context.GetTargetBucketSize()),
+    SubmitJob(output, new OrthancPlugins::PushJob(query, context.GetCache(),
+                                                  context.GetThreadsCount(), context.GetTargetBucketSize()),
               query.GetPriority());
   }
 }
@@ -526,13 +518,13 @@ OrthancPluginJob* Unserializer(const char* jobType,
 
       if (type == JOB_TYPE_PULL)
       {
-        job.reset(new OrthancPlugins::PullJob(context.GetOrthanc(), query,
+        job.reset(new OrthancPlugins::PullJob(query,
                                               context.GetThreadsCount(),
                                               context.GetTargetBucketSize()));
       }
       else if (type == JOB_TYPE_PUSH)
       {
-        job.reset(new OrthancPlugins::PushJob(context.GetOrthanc(), query,
+        job.reset(new OrthancPlugins::PushJob(query,
                                               context.GetCache(),
                                               context.GetThreadsCount(),
                                               context.GetTargetBucketSize()));
@@ -544,7 +536,7 @@ OrthancPluginJob* Unserializer(const char* jobType,
       }
       else
       {
-        return OrthancPlugins::OrthancJob::Create(context.GetOrthanc(), job.release());
+        return OrthancPlugins::OrthancJob::Create(job.release());
       }
     }
     else
@@ -575,17 +567,17 @@ void ServePeers(OrthancPluginRestOutput* output,
   
   if (request->method != OrthancPluginHttpMethod_Get)
   {
-    OrthancPluginSendMethodNotAllowed(context.GetOrthanc(), output, "GET");
+    OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "GET");
     return;
   }
 
   OrthancPlugins::DetectTransferPlugin::Result detection;
   OrthancPlugins::DetectTransferPlugin::Apply
-    (detection, context.GetOrthanc(), context.GetThreadsCount(), 2 /* timeout */);
+    (detection, context.GetThreadsCount(), 2 /* timeout */);
 
   Json::Value result = Json::objectValue;
 
-  OrthancPlugins::OrthancPeers peers(context.GetOrthanc());
+  OrthancPlugins::OrthancPeers peers;
 
   for (OrthancPlugins::DetectTransferPlugin::Result::const_iterator
          it = detection.begin(); it != detection.end(); ++it)
@@ -610,7 +602,7 @@ void ServePeers(OrthancPluginRestOutput* output,
   }
 
   std::string s = result.toStyledString();
-  OrthancPluginAnswerBuffer(context.GetOrthanc(), output, s.c_str(), s.size(), "application/json");
+  OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
 
@@ -622,6 +614,8 @@ extern "C"
     Orthanc::Logging::Initialize(context);
     assert(DisplayPerformanceWarning());
 
+    OrthancPlugins::SetGlobalContext(context);
+    
     /* Check the version of the Orthanc core */
     if (OrthancPluginCheckVersion(context) == 0)
     {
@@ -646,7 +640,7 @@ extern "C"
       std::map<std::string, std::string> bidirectionalPeers;
     
       {
-        OrthancPlugins::OrthancConfiguration config(context);
+        OrthancPlugins::OrthancConfiguration config;
 
         if (config.IsSection(KEY_PLUGIN_CONFIGURATION))
         {
@@ -662,37 +656,37 @@ extern "C"
       }
 
       OrthancPlugins::PluginContext::Initialize
-        (context, threadsCount, targetBucketSize * KB, maxPushTransactions, memoryCacheSize * MB);
+        (threadsCount, targetBucketSize * KB, maxPushTransactions, memoryCacheSize * MB);
     
       OrthancPlugins::RegisterRestCallback<ServeChunks>
-        (context, std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);
+        (std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);
 
       OrthancPlugins::RegisterRestCallback<LookupInstances>
-        (context, URI_LOOKUP, true);
+        (URI_LOOKUP, true);
 
       OrthancPlugins::RegisterRestCallback<SchedulePull>
-        (context, URI_PULL, true);
+        (URI_PULL, true);
 
       OrthancPlugins::RegisterRestCallback<ScheduleSend>
-        (context, URI_SEND, true);
+        (URI_SEND, true);
 
       OrthancPlugins::RegisterRestCallback<ServePeers>
-        (context, URI_PEERS, true);
+        (URI_PEERS, true);
 
       if (maxPushTransactions != 0)
       {
         // If no push transaction is allowed, their URIs are disabled
         OrthancPlugins::RegisterRestCallback<CreatePush>
-          (context, URI_PUSH, true);
+          (URI_PUSH, true);
 
         OrthancPlugins::RegisterRestCallback<StorePush>
-          (context, std::string(URI_PUSH) + "/([.0-9a-f-]+)/([0-9]+)", true);
+          (std::string(URI_PUSH) + "/([.0-9a-f-]+)/([0-9]+)", true);
 
         OrthancPlugins::RegisterRestCallback<CommitPush>
-          (context, std::string(URI_PUSH) + "/([.0-9a-f-]+)/commit", true);
+          (std::string(URI_PUSH) + "/([.0-9a-f-]+)/commit", true);
     
         OrthancPlugins::RegisterRestCallback<DiscardPush>
-          (context, std::string(URI_PUSH) + "/([.0-9a-f-]+)", true);
+          (std::string(URI_PUSH) + "/([.0-9a-f-]+)", true);
       }
 
       OrthancPluginRegisterJobsUnserializer(context, Unserializer);

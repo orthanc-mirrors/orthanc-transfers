@@ -40,7 +40,6 @@ namespace OrthancPlugins
     };
 
   private:
-    OrthancPluginContext         *context_;
     OrthancPeers                  peers_;
     boost::mutex                  mutex_;
     boost::condition_variable     completed_;
@@ -57,7 +56,7 @@ namespace OrthancPlugins
     Status GetStatusInternal() const;
 
   public:
-    HttpQueriesQueue(OrthancPluginContext* context);
+    HttpQueriesQueue();
 
     ~HttpQueriesQueue();
 

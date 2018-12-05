@@ -74,8 +74,7 @@ namespace OrthancPlugins
   };
     
 
-  void ActivePushTransactions::FinalizeTransaction(OrthancPluginContext* context,
-                                                   const std::string& transactionUuid,
+  void ActivePushTransactions::FinalizeTransaction(const std::string& transactionUuid,
                                                    bool commit)
   {
     boost::mutex::scoped_lock  lock(mutex_);
@@ -89,7 +88,7 @@ namespace OrthancPlugins
     assert(found->second != NULL);
     if (commit)
     {
-      found->second->GetDownloadArea().Commit(context);
+      found->second->GetDownloadArea().Commit();
     }
 
     delete found->second;
@@ -163,8 +162,7 @@ namespace OrthancPlugins
   }
     
 
-  void ActivePushTransactions::Store(OrthancPluginContext* context,
-                                     const std::string& transactionUuid,
+  void ActivePushTransactions::Store(const std::string& transactionUuid,
                                      size_t bucketIndex,
                                      const void* data,
                                      size_t size)

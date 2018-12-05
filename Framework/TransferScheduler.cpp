@@ -51,7 +51,7 @@ namespace OrthancPlugins
         throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange);
     }
 
-    if (RestApiGet(resource, cache.GetContext(), "/" + base + "/" + id + "/instances", false))
+    if (RestApiGet(resource, "/" + base + "/" + id + "/instances", false))
     {
       if (resource.type() != Json::arrayValue)
       {

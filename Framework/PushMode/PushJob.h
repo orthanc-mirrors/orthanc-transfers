@@ -32,7 +32,6 @@ namespace OrthancPlugins
     class PushBucketsState;
     class FinalState;
 
-    OrthancPluginContext    *context_;
     OrthancInstancesCache&   cache_;
     TransferQuery            query_;
     size_t                   threadsCount_;
@@ -43,8 +42,7 @@ namespace OrthancPlugins
     virtual StateUpdate* CreateInitialState(JobInfo& info);
     
   public:
-    PushJob(OrthancPluginContext* context,
-            const TransferQuery& query,
+    PushJob(const TransferQuery& query,
             OrthancInstancesCache& cache,
             size_t threadsCount,
             size_t targetBucketSize);
