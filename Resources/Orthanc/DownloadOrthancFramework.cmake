@@ -1,7 +1,7 @@
 # Orthanc - A Lightweight, RESTful DICOM Store
 # Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
 # Department, University Hospital of Liege, Belgium
-# Copyright (C) 2017-2018 Osimis S.A., Belgium
+# Copyright (C) 2017-2019 Osimis S.A., Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -87,6 +87,24 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
         set(ORTHANC_FRAMEWORK_MD5 "d0ccdf68e855d8224331f13774992750")
       elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.4.0")
         set(ORTHANC_FRAMEWORK_MD5 "81e15f34d97ac32bbd7d26e85698835a")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.4.1")
+        set(ORTHANC_FRAMEWORK_MD5 "9b6f6114264b17ed421b574cd6476127")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.4.2")
+        set(ORTHANC_FRAMEWORK_MD5 "d1ee84927dcf668e60eb5868d24b9394")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.0")
+        set(ORTHANC_FRAMEWORK_MD5 "4429d8d9dea4ff6648df80ec3c64d79e")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.1")
+        set(ORTHANC_FRAMEWORK_MD5 "099671538865e5da96208b37494d6718")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.2")
+        set(ORTHANC_FRAMEWORK_MD5 "8867050f3e9a1ce6157c1ea7a9433b1b")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.3")
+        set(ORTHANC_FRAMEWORK_MD5 "bf2f5ed1adb8b0fc5f10d278e68e1dfe")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.4")
+        set(ORTHANC_FRAMEWORK_MD5 "404baef5d4c43e7c5d9410edda8ef5a5")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.5")
+        set(ORTHANC_FRAMEWORK_MD5 "cfc437e0687ae4bd725fd93dc1f08bc4")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.5.6")
+        set(ORTHANC_FRAMEWORK_MD5 "3c29de1e289b5472342947168f0105c0")
       endif()
     endif()
   endif()
@@ -221,8 +239,7 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "web")
   else()
     # Default case: Download from the official Web site
     set(ORTHANC_FRAMEMORK_FILENAME Orthanc-${ORTHANC_FRAMEWORK_VERSION}.tar.gz)
-    #set(ORTHANC_FRAMEWORK_URL "http://www.orthanc-server.com/downloads/get.php?path=/orthanc/${ORTHANC_FRAMEMORK_FILENAME}")
-    set(ORTHANC_FRAMEWORK_URL "http://www.orthanc-server.com/downloads/third-party/orthanc-framework/${ORTHANC_FRAMEMORK_FILENAME}")
+    set(ORTHANC_FRAMEWORK_URL "http://orthanc.osimis.io/ThirdPartyDownloads/orthanc-framework/${ORTHANC_FRAMEMORK_FILENAME}")
   endif()
 
   set(ORTHANC_FRAMEWORK_ARCHIVE "${CMAKE_SOURCE_DIR}/ThirdPartyDownloads/${ORTHANC_FRAMEMORK_FILENAME}")
