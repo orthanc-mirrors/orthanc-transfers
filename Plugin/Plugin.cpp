@@ -643,7 +643,6 @@ extern "C"
       size_t maxPushTransactions = 4;
       size_t memoryCacheSize = 512;    // In MB
       unsigned int maxHttpRetries = 0;
-      std::map<std::string, std::string> bidirectionalPeers;
     
       {
         OrthancPlugins::OrthancConfiguration config;

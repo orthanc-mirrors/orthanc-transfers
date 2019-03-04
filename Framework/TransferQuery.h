@@ -36,7 +36,7 @@ namespace OrthancPlugins
     int                priority_;
 
   public:
-    TransferQuery(const Json::Value& body);
+    explicit TransferQuery(const Json::Value& body);
 
     const std::string& GetPeer() const
     {

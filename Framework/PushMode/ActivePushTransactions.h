@@ -44,7 +44,7 @@ namespace OrthancPlugins
                              bool commit);
 
   public:
-    ActivePushTransactions(size_t maxSize) :
+    explicit ActivePushTransactions(size_t maxSize) :
       maxSize_(maxSize)
     {
     }

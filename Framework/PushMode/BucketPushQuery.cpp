@@ -36,9 +36,9 @@ namespace OrthancPlugins
     cache_(cache),
     bucket_(bucket),
     peer_(peer),
+    uri_(transactionUri + "/" + boost::lexical_cast<std::string>(bucketIndex)),
     compression_(compression)
   {
-    uri_ = transactionUri + "/" + boost::lexical_cast<std::string>(bucketIndex);
   }
 
 

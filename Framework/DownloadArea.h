@@ -37,7 +37,7 @@ namespace OrthancPlugins
       class Writer;
 
     public:
-      Instance(const DicomInstanceInfo& info);
+      explicit Instance(const DicomInstanceInfo& info);
 
       const DicomInstanceInfo& GetInfo() const
       {
@@ -72,9 +72,9 @@ namespace OrthancPlugins
     void CommitInternal(bool simulate);
 
   public:
-    DownloadArea(const TransferScheduler& scheduler);
+    explicit DownloadArea(const TransferScheduler& scheduler);
 
-    DownloadArea(const std::vector<DicomInstanceInfo>& instances)
+    explicit DownloadArea(const std::vector<DicomInstanceInfo>& instances)
     {
       Setup(instances);
     }

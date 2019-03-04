@@ -41,7 +41,7 @@ namespace OrthancPlugins
   public:
     TransferBucket();
 
-    TransferBucket(const Json::Value& serialized);
+    explicit TransferBucket(const Json::Value& serialized);
 
     size_t GetTotalSize() const
     {

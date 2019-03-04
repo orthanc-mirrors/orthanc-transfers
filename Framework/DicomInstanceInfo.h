@@ -46,7 +46,7 @@ namespace OrthancPlugins
                       size_t size,
                       const std::string& md5);
 
-    DicomInstanceInfo(const Json::Value& serialized);
+    explicit DicomInstanceInfo(const Json::Value& serialized);
 
     const std::string& GetId() const
     {

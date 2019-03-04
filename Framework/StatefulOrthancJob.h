@@ -40,7 +40,7 @@ namespace OrthancPlugins
       Json::Value          content_;
 
     public:
-      JobInfo(StatefulOrthancJob& job);
+      explicit JobInfo(StatefulOrthancJob& job);
 
       void SetProgress(float progress)
       {
@@ -61,12 +61,12 @@ namespace OrthancPlugins
       OrthancPluginJobStepStatus  status_;
       std::auto_ptr<IState>       state_;
 
-      StateUpdate(OrthancPluginJobStepStatus status) :
+      explicit StateUpdate(OrthancPluginJobStepStatus status) :
         status_(status)
       {
       }
 
-      StateUpdate(IState* state);
+      explicit StateUpdate(IState* state);
 
     public:
       static StateUpdate* Next(IState* state)  // Takes ownsership

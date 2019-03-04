@@ -31,12 +31,11 @@ namespace OrthancPlugins
                                unsigned int maxHttpRetries) :
     pushTransactions_(maxPushTransactions),
     semaphore_(threadsCount),
+    pluginUuid_(Orthanc::Toolbox::GenerateUuid()),
     threadsCount_(threadsCount),
     targetBucketSize_(targetBucketSize),
     maxHttpRetries_(maxHttpRetries)
   {
-    pluginUuid_ = Orthanc::Toolbox::GenerateUuid();
-
     cache_.SetMaxMemorySize(memoryCacheSize);
 
     LOG(INFO) << "Transfers accelerator will use " << threadsCount << " threads to run HTTP queries";

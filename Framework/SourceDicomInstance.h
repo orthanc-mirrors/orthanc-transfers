@@ -35,7 +35,7 @@ namespace OrthancPlugins
     std::auto_ptr<DicomInstanceInfo>  info_;
 
   public:
-    SourceDicomInstance(const std::string& instanceId);
+    explicit SourceDicomInstance(const std::string& instanceId);
 
     ~SourceDicomInstance();
 
