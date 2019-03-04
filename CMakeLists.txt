@@ -26,6 +26,9 @@ if (ORTHANC_PLUGIN_VERSION STREQUAL "mainline")
 else()
   set(ORTHANC_FRAMEWORK_VERSION "1.5.6")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
+
+  # diff --new-file -urEb Orthanc-1.5.6.orig/ Orthanc-1.5.6 > orthanc-1.5.6.patch
+  set(ORTHANC_FRAMEWORK_PATCH "${CMAKE_SOURCE_DIR}/Resources/Patches/orthanc-1.5.6.patch")
 endif()
 
 
@@ -53,6 +56,21 @@ set(ENABLE_ZLIB ON)
 
 include(${ORTHANC_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
 include_directories(${ORTHANC_ROOT})
+
+
+# Possibly patch the Orthanc framework
+if (DEFINED ORTHANC_FRAMEWORK_PATCH AND
+    NOT EXISTS "${ORTHANC_ROOT}/patched")
+  execute_process(
+    COMMAND ${PATCH_EXECUTABLE} -p0 -N -i ${ORTHANC_FRAMEWORK_PATCH}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    RESULT_VARIABLE Failure
+    )
+
+  if (Failure)
+    message(FATAL_ERROR "Error while patching a file")
+  endif()
+endif()
 
 
 # Check that the Orthanc SDK headers are available
