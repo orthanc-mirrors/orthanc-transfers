@@ -27,11 +27,13 @@ namespace OrthancPlugins
   PluginContext::PluginContext(size_t threadsCount,
                                size_t targetBucketSize,
                                size_t maxPushTransactions,
-                               size_t memoryCacheSize) :
+                               size_t memoryCacheSize,
+                               unsigned int maxHttpRetries) :
     pushTransactions_(maxPushTransactions),
     semaphore_(threadsCount),
     threadsCount_(threadsCount),
-    targetBucketSize_(targetBucketSize)
+    targetBucketSize_(targetBucketSize),
+    maxHttpRetries_(maxHttpRetries)
   {
     pluginUuid_ = Orthanc::Toolbox::GenerateUuid();
 
@@ -58,10 +60,11 @@ namespace OrthancPlugins
   void PluginContext::Initialize(size_t threadsCount,
                                  size_t targetBucketSize,
                                  size_t maxPushTransactions,
-                                 size_t memoryCacheSize)
+                                 size_t memoryCacheSize,
+                                 unsigned int maxHttpRetries)
   {
     GetSingleton().reset(new PluginContext(threadsCount, targetBucketSize,
-                                           maxPushTransactions, memoryCacheSize));
+                                           maxPushTransactions, memoryCacheSize, maxHttpRetries));
   }
 
   

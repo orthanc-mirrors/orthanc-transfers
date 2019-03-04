@@ -37,12 +37,14 @@ namespace OrthancPlugins
     size_t         targetBucketSize_;
     OrthancPeers   peers_;
     size_t         peerIndex_;
+    unsigned int   maxHttpRetries_;
 
     virtual StateUpdate* CreateInitialState(JobInfo& info);    
     
   public:
     PullJob(const TransferQuery& query,
             size_t threadsCount,
-            size_t targetBucketSize);
+            size_t targetBucketSize,
+            unsigned int maxHttpRetries);
   };
 }

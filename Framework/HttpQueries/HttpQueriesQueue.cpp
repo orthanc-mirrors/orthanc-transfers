@@ -214,7 +214,7 @@ namespace OrthancPlugins
         // Error: Let's retry
         retry ++;
 
-        if (retry < maxRetries)
+        if (retry <= maxRetries)
         {
           // Wait 1 second before retrying
           boost::this_thread::sleep(boost::posix_time::seconds(1));

@@ -52,19 +52,19 @@ namespace OrthancPlugins
 
     virtual StateUpdate* Step()
     {
-      std::string uri = transactionUri_;
-        
+      Json::Value answer;
+      bool success = false;
+
       if (isCommit_)
       {
-        uri += "/commit";
+        success = DoPostPeer(answer, job_.peers_, job_.peerIndex_, transactionUri_ + "/commit", "", job_.maxHttpRetries_);
       }
       else
       {
-        uri += "/discard";
+        success = DoDeletePeer(job_.peers_, job_.peerIndex_, transactionUri_, job_.maxHttpRetries_);
       }
         
-      Json::Value answer;
-      if (!job_.peers_.DoPost(answer, job_.peerIndex_, uri, ""))
+      if (!success)
       {
         if (isCommit_)
         {
@@ -130,6 +130,7 @@ namespace OrthancPlugins
       info_(info),
       transactionUri_(transactionUri)
     {
+      queue_.SetMaxRetries(job.maxHttpRetries_);
       queue_.Reserve(buckets.size());
         
       for (size_t i = 0; i < buckets.size(); i++)
@@ -212,7 +213,7 @@ namespace OrthancPlugins
     virtual StateUpdate* Step()
     {
       Json::Value answer;
-      if (!job_.peers_.DoPost(answer, job_.peerIndex_, URI_PUSH, createTransaction_))
+      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_PUSH, createTransaction_, job_.maxHttpRetries_))
       {
         LOG(ERROR) << "Cannot create a push transaction to peer \"" 
                    << job_.query_.GetPeer()
@@ -248,12 +249,14 @@ namespace OrthancPlugins
   PushJob::PushJob(const TransferQuery& query,
                    OrthancInstancesCache& cache,
                    size_t threadsCount,
-                   size_t targetBucketSize) :
+                   size_t targetBucketSize,
+                   unsigned int maxHttpRetries) :
     StatefulOrthancJob(JOB_TYPE_PUSH),
     cache_(cache),
     query_(query),
     threadsCount_(threadsCount),
-    targetBucketSize_(targetBucketSize)
+    targetBucketSize_(targetBucketSize),
+    maxHttpRetries_(maxHttpRetries)
   {
     if (!peers_.LookupName(peerIndex_, query_.GetPeer()))
     {

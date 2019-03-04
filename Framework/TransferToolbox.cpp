@@ -21,8 +21,10 @@
 
 #include <Core/Logging.h>
 #include <Core/OrthancException.h>
+#include <Plugins/Samples/Common/OrthancPluginCppWrapper.h>
 
 #include <boost/math/special_functions/round.hpp>
+#include <boost/thread/thread.hpp>
 
 
 namespace OrthancPlugins
@@ -71,6 +73,90 @@ namespace OrthancPlugins
         
       default:
         throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange);
+    }
+  }
+
+
+  bool DoPostPeer(Json::Value& answer,
+                  const OrthancPeers& peers,
+                  size_t peerIndex,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries)
+  {
+    unsigned int retry = 0;
+
+    for (;;)
+    {
+      try
+      {
+        if (peers.DoPost(answer, peerIndex, uri, body))
+        {
+          return true;
+        }
+      }
+      catch (Orthanc::OrthancException&)
+      {
+      }
+
+      if (retry >= maxRetries)
+      {
+        return false;
+      }
+      else
+      {
+        // Wait 1 second before retrying
+        boost::this_thread::sleep(boost::posix_time::seconds(1));
+        retry++;
+      }
+    }
+  }
+
+
+  bool DoPostPeer(Json::Value& answer,
+                  const OrthancPeers& peers,
+                  const std::string& peerName,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries)
+  {
+    size_t index;
+
+    return (peers.LookupName(index, peerName) &&
+            DoPostPeer(answer, peers, index, uri, body, maxRetries));
+  }
+
+
+  bool DoDeletePeer(const OrthancPeers& peers,
+                    size_t peerIndex,
+                    const std::string& uri,
+                    unsigned int maxRetries)
+  {
+    unsigned int retry = 0;
+
+    for (;;)
+    {
+      try
+      {
+        if (peers.DoDelete(peerIndex, uri))
+        {
+          return true;
+        }
+      }
+      catch (Orthanc::OrthancException&)
+      {
+      }
+      
+      if (retry >= maxRetries)
+      {
+        return false;
+      }
+      else
+      {
+        // Wait 1 second before retrying
+        boost::this_thread::sleep(boost::posix_time::seconds(1));
+        retry++;
+      }
     }
   }
 }

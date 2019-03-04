@@ -40,12 +40,13 @@ namespace OrthancPlugins
     // Configuration
     size_t                   threadsCount_;
     size_t                   targetBucketSize_;
-
+    unsigned int             maxHttpRetries_;
   
     PluginContext(size_t threadsCount,
                   size_t targetBucketSize,
                   size_t maxPushTransactions,
-                  size_t memoryCacheSize);
+                  size_t memoryCacheSize,
+                  unsigned int maxHttpRetries);
 
     static std::auto_ptr<PluginContext>& GetSingleton();
   
@@ -80,10 +81,16 @@ namespace OrthancPlugins
       return targetBucketSize_;
     }
 
+    unsigned int GetMaxHttpRetries() const
+    {
+      return maxHttpRetries_;
+    }
+
     static void Initialize(size_t threadsCount,
                            size_t targetBucketSize,
                            size_t maxPushTransactions,
-                           size_t memoryCacheSize);
+                           size_t memoryCacheSize,
+                           unsigned int maxHttpRetries);
   
     static PluginContext& GetInstance();
 

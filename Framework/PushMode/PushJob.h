@@ -38,13 +38,15 @@ namespace OrthancPlugins
     size_t                   targetBucketSize_;
     OrthancPeers             peers_;
     size_t                   peerIndex_;
-    
+    unsigned int             maxHttpRetries_;
+ 
     virtual StateUpdate* CreateInitialState(JobInfo& info);
     
   public:
     PushJob(const TransferQuery& query,
             OrthancInstancesCache& cache,
             size_t threadsCount,
-            size_t targetBucketSize);
+            size_t targetBucketSize,
+            unsigned int maxHttpRetries);
   };
 }

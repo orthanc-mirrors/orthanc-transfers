@@ -101,7 +101,8 @@ namespace OrthancPlugins
       scheduler.ComputePullBuckets(buckets, job.targetBucketSize_, 2 * job.targetBucketSize_,
                                    baseUrl, job.query_.GetCompression());
       area_.reset(new DownloadArea(scheduler));
-        
+
+      queue_.SetMaxRetries(job.maxHttpRetries_);
       queue_.Reserve(buckets.size());
         
       for (size_t i = 0; i < buckets.size(); i++)
@@ -171,7 +172,7 @@ namespace OrthancPlugins
       const std::string lookup = writer.write(job_.query_.GetResources()); 
 
       Json::Value answer;
-      if (!job_.peers_.DoPost(answer, job_.peerIndex_, URI_LOOKUP, lookup))
+      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_LOOKUP, lookup, job_.maxHttpRetries_))
       {
         LOG(ERROR) << "Cannot retrieve the list of instances to pull from peer \"" 
                    << job_.query_.GetPeer()
@@ -230,11 +231,13 @@ namespace OrthancPlugins
     
   PullJob::PullJob(const TransferQuery& query,
                    size_t threadsCount,
-                   size_t targetBucketSize) :
+                   size_t targetBucketSize,
+                   unsigned int maxHttpRetries) :
     StatefulOrthancJob(JOB_TYPE_PULL),
     query_(query),
     threadsCount_(threadsCount),
-    targetBucketSize_(targetBucketSize)
+    targetBucketSize_(targetBucketSize),
+    maxHttpRetries_(maxHttpRetries)
   {
     if (!peers_.LookupName(peerIndex_, query_.GetPeer()))
     {

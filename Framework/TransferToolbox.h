@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <json/value.h>
 
 static const unsigned int KB = 1024;
 static const unsigned int MB = 1024 * 1024;
@@ -59,6 +60,8 @@ static const char* const URI_SEND = "/transfers/send";
   
 namespace OrthancPlugins
 {
+  class OrthancPeers;
+  
   enum BucketCompression
   {
     BucketCompression_None,
@@ -72,4 +75,23 @@ namespace OrthancPlugins
   BucketCompression StringToBucketCompression(const std::string& value);
 
   const char* EnumerationToString(BucketCompression compression);
+
+  bool DoPostPeer(Json::Value& answer,
+                  const OrthancPeers& peers,
+                  size_t peerIndex,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries);
+
+  bool DoPostPeer(Json::Value& answer,
+                  const OrthancPeers& peers,
+                  const std::string& peerName,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries);
+
+  bool DoDeletePeer(const OrthancPeers& peers,
+                    size_t peerIndex,
+                    const std::string& uri,
+                    unsigned int maxRetries);
 }

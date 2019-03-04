@@ -51,18 +51,31 @@ namespace OrthancPlugins
     Json::Reader reader;
     Json::Value value;
 
+    bool enabled = false;
+
     if (reader.parse(reinterpret_cast<const char*>(answer), 
                      reinterpret_cast<const char*>(answer) + size, value) &&
         value.type() == Json::arrayValue)
     {
+      // Loop over the plugins that are enabled on the remote peer
       for (Json::Value::ArrayIndex i = 0; i < value.size(); i++)
       {
         if (value[i].type() == Json::stringValue &&
             value[i].asString() == PLUGIN_NAME)
         {
           result_[peer_] = true;
+          enabled = true;
         }
       }
+    }
+
+    if (enabled)
+    {
+      LOG(INFO) << "Peer \"" << peer_ << "\" has the transfers accelerator plugin enabled";
+    }
+    else
+    {
+      LOG(WARNING) << "Peer \"" << peer_ << "\" does *not* have the transfers accelerator plugin enabled";
     }
   }
 

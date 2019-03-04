@@ -274,8 +274,9 @@ void SchedulePull(OrthancPluginRestOutput* output,
 
   OrthancPlugins::TransferQuery query(body);
 
-  SubmitJob(output, new OrthancPlugins::PullJob(
-              query, context.GetThreadsCount(), context.GetTargetBucketSize()),
+  SubmitJob(output, new OrthancPlugins::PullJob(query, context.GetThreadsCount(),
+                                                context.GetTargetBucketSize(),
+                                                context.GetMaxHttpRetries()),
             query.GetPriority());
 }
 
@@ -452,7 +453,7 @@ void ScheduleSend(OrthancPluginRestOutput* output,
     std::string s = writer.write(lookup);
 
     Json::Value answer;
-    if (peers.DoPost(answer, query.GetPeer(), URI_PULL, s) &&
+    if (DoPostPeer(answer, peers, query.GetPeer(), URI_PULL, s, context.GetMaxHttpRetries()) &&
         answer.type() == Json::objectValue &&
         answer.isMember(KEY_ID) &&
         answer.isMember(KEY_PATH) &&
@@ -479,7 +480,9 @@ void ScheduleSend(OrthancPluginRestOutput* output,
   else
   {
     SubmitJob(output, new OrthancPlugins::PushJob(query, context.GetCache(),
-                                                  context.GetThreadsCount(), context.GetTargetBucketSize()),
+                                                  context.GetThreadsCount(),
+                                                  context.GetTargetBucketSize(),
+                                                  context.GetMaxHttpRetries()),
               query.GetPriority());
   }
 }
@@ -520,14 +523,16 @@ OrthancPluginJob* Unserializer(const char* jobType,
       {
         job.reset(new OrthancPlugins::PullJob(query,
                                               context.GetThreadsCount(),
-                                              context.GetTargetBucketSize()));
+                                              context.GetTargetBucketSize(),
+                                              context.GetMaxHttpRetries()));
       }
       else if (type == JOB_TYPE_PUSH)
       {
         job.reset(new OrthancPlugins::PushJob(query,
                                               context.GetCache(),
                                               context.GetThreadsCount(),
-                                              context.GetTargetBucketSize()));
+                                              context.GetTargetBucketSize(),
+                                              context.GetMaxHttpRetries()));
       }
 
       if (job.get() == NULL)
@@ -637,6 +642,7 @@ extern "C"
       size_t targetBucketSize = 4096;  // In KB
       size_t maxPushTransactions = 4;
       size_t memoryCacheSize = 512;    // In MB
+      unsigned int maxHttpRetries = 0;
       std::map<std::string, std::string> bidirectionalPeers;
     
       {
@@ -650,13 +656,13 @@ extern "C"
           threadsCount = plugin.GetUnsignedIntegerValue("Threads", threadsCount);
           targetBucketSize = plugin.GetUnsignedIntegerValue("BucketSize", targetBucketSize);
           memoryCacheSize = plugin.GetUnsignedIntegerValue("CacheSize", memoryCacheSize);
-          maxPushTransactions = plugin.GetUnsignedIntegerValue
-            ("MaxPushTransactions", maxPushTransactions);
+          maxPushTransactions = plugin.GetUnsignedIntegerValue("MaxPushTransactions", maxPushTransactions);
+          maxHttpRetries = plugin.GetUnsignedIntegerValue("MaxHttpRetries", maxHttpRetries);
         }
       }
 
-      OrthancPlugins::PluginContext::Initialize
-        (threadsCount, targetBucketSize * KB, maxPushTransactions, memoryCacheSize * MB);
+      OrthancPlugins::PluginContext::Initialize(threadsCount, targetBucketSize * KB, maxPushTransactions,
+                                                memoryCacheSize * MB, maxHttpRetries);
     
       OrthancPlugins::RegisterRestCallback<ServeChunks>
         (std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);
