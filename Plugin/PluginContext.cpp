@@ -38,14 +38,15 @@ namespace OrthancPlugins
   {
     cache_.SetMaxMemorySize(memoryCacheSize);
 
-    LOG(INFO) << "Transfers accelerator will use " << threadsCount << " threads to run HTTP queries";
+    LOG(INFO) << "Transfers accelerator will use " << threadsCount_ << " thread(s) to run HTTP queries";
     LOG(INFO) << "Transfers accelerator will use keep local DICOM files in a memory cache of size: "
               << OrthancPlugins::ConvertToMegabytes(memoryCacheSize) << " MB";
     LOG(INFO) << "Transfers accelerator will aim at HTTP queries of size: "
-              << OrthancPlugins::ConvertToKilobytes(targetBucketSize) << " KB";
+              << OrthancPlugins::ConvertToKilobytes(targetBucketSize_) << " KB";
     LOG(INFO) << "Transfers accelerator will be able to receive up to "
-              << maxPushTransactions << " push transactions at once";
-
+              << maxPushTransactions << " push transaction(s) at once";
+    LOG(INFO) << "Transfers accelerator will retry "
+              << maxHttpRetries_ << " time(s) if some HTTP query fails";
   }
 
 
