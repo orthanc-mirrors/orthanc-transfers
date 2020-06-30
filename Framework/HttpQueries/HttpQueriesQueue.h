@@ -21,7 +21,7 @@
 
 #include "IHttpQuery.h"
 
-#include <Plugins/Samples/Common/OrthancPluginCppWrapper.h>
+#include <OrthancPluginCppWrapper.h>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>

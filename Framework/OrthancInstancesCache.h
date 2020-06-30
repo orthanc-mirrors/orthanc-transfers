@@ -22,7 +22,7 @@
 #include "SourceDicomInstance.h"
 #include "TransferBucket.h"
 
-#include <Core/Cache/LeastRecentlyUsedIndex.h>
+#include <Cache/LeastRecentlyUsedIndex.h>
 
 #include <boost/thread/mutex.hpp>
 

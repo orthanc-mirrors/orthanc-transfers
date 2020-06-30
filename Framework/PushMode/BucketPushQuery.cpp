@@ -19,8 +19,8 @@
 
 #include "BucketPushQuery.h"
 
-#include <Core/ChunkedBuffer.h>
-#include <Core/Compression/GzipCompressor.h>
+#include <ChunkedBuffer.h>
+#include <Compression/GzipCompressor.h>
 
 #include <boost/lexical_cast.hpp>
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <Core/Enumerations.h>
+#include <Enumerations.h>
 
 #include <boost/noncopyable.hpp>
 

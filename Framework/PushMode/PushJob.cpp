@@ -23,7 +23,7 @@
 #include "../HttpQueries/HttpQueriesRunner.h"
 #include "../TransferScheduler.h"
 
-#include <Core/Logging.h>
+#include <Logging.h>
 
 #include <json/writer.h>
 

@@ -55,7 +55,10 @@ set(ENABLE_MODULE_DICOM OFF)
 set(ENABLE_ZLIB ON)
 
 include(${ORTHANC_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
-include_directories(${ORTHANC_ROOT})
+include_directories(
+  ${ORTHANC_ROOT}/Core
+  ${ORTHANC_ROOT}/Plugins/Samples/Common
+  )
 
 
 # Possibly patch the Orthanc framework

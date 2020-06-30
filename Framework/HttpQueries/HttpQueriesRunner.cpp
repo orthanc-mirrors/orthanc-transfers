@@ -19,7 +19,7 @@
 
 #include "HttpQueriesRunner.h"
 
-#include <Core/OrthancException.h>
+#include <OrthancException.h>
 
 #include <boost/thread.hpp>
 

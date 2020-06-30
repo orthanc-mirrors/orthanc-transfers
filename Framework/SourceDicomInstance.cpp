@@ -19,9 +19,9 @@
 
 #include "SourceDicomInstance.h"
 
-#include <Core/Logging.h>
-#include <Core/Toolbox.h>
-#include <Plugins/Samples/Common/OrthancPluginCppWrapper.h>
+#include <Logging.h>
+#include <Toolbox.h>
+#include <OrthancPluginCppWrapper.h>
 
 
 namespace OrthancPlugins

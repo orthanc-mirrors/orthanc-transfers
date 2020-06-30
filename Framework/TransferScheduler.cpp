@@ -19,9 +19,9 @@
 
 #include "TransferScheduler.h"
 
-#include <Core/Logging.h>
-#include <Core/OrthancException.h>
-#include <Plugins/Samples/Common/OrthancPluginCppWrapper.h>
+#include <Logging.h>
+#include <OrthancException.h>
+#include <OrthancPluginCppWrapper.h>
 
 
 namespace OrthancPlugins

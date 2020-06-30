@@ -22,7 +22,7 @@
 #include "../TransferToolbox.h"
 #include "HttpQueriesRunner.h"
 
-#include <Core/OrthancException.h>
+#include <OrthancException.h>
 
 #include <json/reader.h>
 

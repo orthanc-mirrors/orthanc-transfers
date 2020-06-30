@@ -19,7 +19,7 @@
 
 #include "PluginContext.h"
 
-#include <Core/Logging.h>
+#include <Logging.h>
 
 
 namespace OrthancPlugins

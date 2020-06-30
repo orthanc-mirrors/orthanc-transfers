@@ -22,7 +22,7 @@
 #include "../Framework/OrthancInstancesCache.h"
 #include "../Framework/PushMode/ActivePushTransactions.h"
 
-#include <Core/MultiThreading/Semaphore.h>
+#include <MultiThreading/Semaphore.h>
 
 #include <map>
 

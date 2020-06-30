@@ -21,7 +21,7 @@
 
 #include "TransferScheduler.h"
 
-#include <Core/TemporaryFile.h>
+#include <TemporaryFile.h>
 
 namespace OrthancPlugins
 {

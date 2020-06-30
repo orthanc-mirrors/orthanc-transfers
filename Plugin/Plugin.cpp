@@ -24,9 +24,9 @@
 
 #include <EmbeddedResources.h>
 
-#include <Core/ChunkedBuffer.h>
-#include <Core/Compression/GzipCompressor.h>
-#include <Core/Logging.h>
+#include <ChunkedBuffer.h>
+#include <Compression/GzipCompressor.h>
+#include <Logging.h>
 
 
 static bool DisplayPerformanceWarning()
@@ -616,7 +616,7 @@ extern "C"
 {
   ORTHANC_PLUGINS_API int32_t OrthancPluginInitialize(OrthancPluginContext* context)
   {
-    Orthanc::Logging::Initialize(context);
+    Orthanc::Logging::InitializePluginContext(context);
     assert(DisplayPerformanceWarning());
 
     OrthancPlugins::SetGlobalContext(context);

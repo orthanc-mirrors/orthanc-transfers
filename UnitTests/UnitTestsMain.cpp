@@ -19,9 +19,9 @@
 
 #include "../Framework/DownloadArea.h"
 
-#include <Core/Compression/GzipCompressor.h>
-#include <Core/Logging.h>
-#include <Core/OrthancException.h>
+#include <Compression/GzipCompressor.h>
+#include <Logging.h>
+#include <OrthancException.h>
 #include <gtest/gtest.h>
 
 

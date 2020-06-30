@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <Plugins/Samples/Common/OrthancPluginCppWrapper.h>
+#include <OrthancPluginCppWrapper.h>
 
 #include <memory>
 
