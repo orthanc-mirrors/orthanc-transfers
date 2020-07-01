@@ -19,9 +19,10 @@
 
 #include "DicomInstanceInfo.h"
 
+#include "../Resources/Orthanc/Plugins/OrthancPluginCppWrapper.h"
+
 #include <OrthancException.h>
 #include <Toolbox.h>
-#include <OrthancPluginCppWrapper.h>
 
 static const char *KEY_ID = "ID";
 static const char *KEY_MD5 = "MD5";

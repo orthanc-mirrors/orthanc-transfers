@@ -15,11 +15,15 @@ PLUGIN_SDK_VERSION = [ '1.4.2' ]
 REPOSITORY = 'https://hg.orthanc-server.com/orthanc/raw-file'
 
 FILES = [
-    'CMake/DownloadOrthancFramework.cmake',
-    'LinuxStandardBaseToolchain.cmake',
-    'MinGW-W64-Toolchain32.cmake',
-    'MinGW-W64-Toolchain64.cmake',
-    'MinGWToolchain.cmake',
+    ('OrthancFramework/Resources/CMake/DownloadOrthancFramework.cmake', '.'),
+    ('OrthancFramework/Resources/Toolchains/LinuxStandardBaseToolchain.cmake', '.'),
+    ('OrthancFramework/Resources/Toolchains/MinGW-W64-Toolchain32.cmake', '.'),
+    ('OrthancFramework/Resources/Toolchains/MinGW-W64-Toolchain64.cmake', '.'),
+    ('OrthancFramework/Resources/Toolchains/MinGWToolchain.cmake', '.'),
+
+    ('OrthancServer/Plugins/Samples/Common/OrthancPluginCppWrapper.cpp', 'Plugins'),
+    ('OrthancServer/Plugins/Samples/Common/OrthancPluginCppWrapper.h', 'Plugins'),
+    ('OrthancServer/Plugins/Samples/Common/OrthancPluginException.h', 'Plugins'),
 ]
 
 SDK = [
@@ -48,8 +52,8 @@ commands = []
 
 for f in FILES:
     commands.append([ 'default',
-                      os.path.join('Resources', f),
-                      os.path.basename(f) ])
+                      f[0],
+                      os.path.join(f[1], os.path.basename(f[0])) ])
 
 for version in PLUGIN_SDK_VERSION:
     for f in SDK:

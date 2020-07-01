@@ -44,7 +44,7 @@ set(USE_SYSTEM_ORTHANC_SDK ON CACHE BOOL "Use the system version of the Orthanc 
 
 # Download and setup the Orthanc framework
 include(${CMAKE_CURRENT_LIST_DIR}/Resources/Orthanc/DownloadOrthancFramework.cmake)
-include(${ORTHANC_ROOT}/Resources/CMake/OrthancFrameworkParameters.cmake)
+include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkParameters.cmake)
 
 set(HAS_EMBEDDED_RESOURCES ON)
 set(ENABLE_LOCALE OFF)         # Disable support for locales (notably in Boost)
@@ -54,16 +54,15 @@ set(ENABLE_MODULE_JOBS OFF)
 set(ENABLE_MODULE_DICOM OFF)
 set(ENABLE_ZLIB ON)
 
-include(${ORTHANC_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
+include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
 include_directories(
-  ${ORTHANC_ROOT}/Core
-  ${ORTHANC_ROOT}/Plugins/Samples/Common
+  ${ORTHANC_FRAMEWORK_ROOT}/Sources
   )
 
 
 # Possibly patch the Orthanc framework
 if (DEFINED ORTHANC_FRAMEWORK_PATCH AND
-    NOT EXISTS "${ORTHANC_ROOT}/patched")
+    NOT EXISTS "${ORTHANC_FRAMEWORK_ROOT}/patched")
   execute_process(
     COMMAND ${PATCH_EXECUTABLE} -p0 -N -i ${ORTHANC_FRAMEWORK_PATCH}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -81,7 +80,7 @@ if (STATIC_BUILD OR NOT USE_SYSTEM_ORTHANC_SDK)
   if (ORTHANC_SDK_VERSION STREQUAL "1.4.2")
     include_directories(${CMAKE_CURRENT_LIST_DIR}/Resources/Orthanc/Sdk-1.4.2)
   elseif (ORTHANC_SDK_VERSION STREQUAL "framework")
-    include_directories(${ORTHANC_ROOT}/Plugins/Include)
+    include_directories(${ORTHANC_FRAMEWORK_ROOT}/Plugins/Include)
   else()
     message(FATAL_ERROR "Unsupported version of the Orthanc plugin SDK: ${ORTHANC_SDK_VERSION}")
   endif()
@@ -97,7 +96,7 @@ endif()
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   execute_process(
     COMMAND 
-    ${PYTHON_EXECUTABLE} ${ORTHANC_ROOT}/Resources/WindowsResources.py
+    ${PYTHON_EXECUTABLE} ${ORTHANC_FRAMEWORK_ROOT}/Resources/WindowsResources.py
     ${ORTHANC_PLUGIN_VERSION} "TransfersAccelerator index plugin" OrthancTransfers.dll
     "TransfersAccelerator as a database back-end to Orthanc (index)"
     ERROR_VARIABLE Failure
@@ -135,7 +134,7 @@ set(FRAMEWORK_SOURCES
   Framework/TransferQuery.cpp
   Framework/TransferScheduler.cpp
   Framework/TransferToolbox.cpp
-  ${ORTHANC_ROOT}/Plugins/Samples/Common/OrthancPluginCppWrapper.cpp
+  Resources/Orthanc/Plugins/OrthancPluginCppWrapper.cpp
   )
 
 

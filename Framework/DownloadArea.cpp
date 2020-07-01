@@ -19,10 +19,11 @@
 
 #include "DownloadArea.h"
 
+#include "../Resources/Orthanc/Plugins/OrthancPluginCppWrapper.h"
+
 #include <Compression/GzipCompressor.h>
 #include <Logging.h>
 #include <SystemToolbox.h>
-#include <OrthancPluginCppWrapper.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>

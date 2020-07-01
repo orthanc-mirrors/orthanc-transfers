@@ -19,9 +19,10 @@
 
 #include "TransferToolbox.h"
 
+#include "../Resources/Orthanc/Plugins/OrthancPluginCppWrapper.h"
+
 #include <Logging.h>
 #include <OrthancException.h>
-#include <OrthancPluginCppWrapper.h>
 
 #include <boost/math/special_functions/round.hpp>
 #include <boost/thread/thread.hpp>
