@@ -43,21 +43,34 @@ set(USE_SYSTEM_ORTHANC_SDK ON CACHE BOOL "Use the system version of the Orthanc 
 
 
 # Download and setup the Orthanc framework
-include(${CMAKE_CURRENT_LIST_DIR}/Resources/Orthanc/DownloadOrthancFramework.cmake)
-include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkParameters.cmake)
+include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/CMake/DownloadOrthancFramework.cmake)
 
-set(HAS_EMBEDDED_RESOURCES ON)
-set(ENABLE_LOCALE OFF)         # Disable support for locales (notably in Boost)
-set(ENABLE_GOOGLE_TEST ON)
-set(ENABLE_MODULE_IMAGES OFF)
-set(ENABLE_MODULE_JOBS OFF)
-set(ENABLE_MODULE_DICOM OFF)
-set(ENABLE_ZLIB ON)
+if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "system")
+  link_libraries(${ORTHANC_FRAMEWORK_LIBRARIES})
 
-include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
-include_directories(
-  ${ORTHANC_FRAMEWORK_ROOT}/Sources
-  )
+  set(USE_SYSTEM_GOOGLE_TEST ON CACHE BOOL "Use the system version of Google Test")
+  set(USE_GOOGLE_TEST_DEBIAN_PACKAGE OFF CACHE BOOL "Use the sources of Google Test shipped with libgtest-dev (Debian only)")
+  mark_as_advanced(USE_GOOGLE_TEST_DEBIAN_PACKAGE)
+  include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/CMake/GoogleTestConfiguration.cmake)
+
+else()
+  include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkParameters.cmake)
+
+  set(ENABLE_LOCALE OFF)         # Disable support for locales (notably in Boost)
+  set(ENABLE_GOOGLE_TEST ON)
+  set(ENABLE_MODULE_IMAGES OFF)
+  set(ENABLE_MODULE_JOBS OFF)
+  set(ENABLE_MODULE_DICOM OFF)
+  set(ENABLE_ZLIB ON)
+
+  include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
+  include_directories(
+    ${ORTHANC_FRAMEWORK_ROOT}/Sources
+    )
+endif()
+
+
+include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/Plugins/OrthancPluginsExports.cmake)
 
 
 # Possibly patch the Orthanc framework
@@ -78,7 +91,7 @@ endif()
 # Check that the Orthanc SDK headers are available
 if (STATIC_BUILD OR NOT USE_SYSTEM_ORTHANC_SDK)
   if (ORTHANC_SDK_VERSION STREQUAL "1.4.2")
-    include_directories(${CMAKE_CURRENT_LIST_DIR}/Resources/Orthanc/Sdk-1.4.2)
+    include_directories(${CMAKE_SOURCE_DIR}/Resources/Orthanc/Sdk-1.4.2)
   else()
     message(FATAL_ERROR "Unsupported version of the Orthanc plugin SDK: ${ORTHANC_SDK_VERSION}")
   endif()
