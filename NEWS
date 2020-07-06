@@ -1,6 +1,8 @@
 Pending changes in the mainline
 ===============================
 
+* Support of dynamic linking against the system-wide Orthanc framework library
+
 
 Version 1.0 (2019-03-04)
 ========================
