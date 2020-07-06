@@ -23,6 +23,7 @@
 #include "../HttpQueries/HttpQueriesRunner.h"
 #include "../TransferScheduler.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
 #include <json/writer.h>
@@ -34,7 +35,7 @@ namespace OrthancPlugins
   {
   private:
     const PullJob&               job_;
-    std::auto_ptr<DownloadArea>  area_;
+    std::unique_ptr<DownloadArea>  area_;
 
   public:
     CommitState(const PullJob& job,
@@ -62,8 +63,8 @@ namespace OrthancPlugins
     const PullJob&                    job_;
     JobInfo&                          info_;
     HttpQueriesQueue                  queue_;
-    std::auto_ptr<DownloadArea>       area_;
-    std::auto_ptr<HttpQueriesRunner>  runner_;
+    std::unique_ptr<DownloadArea>       area_;
+    std::unique_ptr<HttpQueriesRunner>  runner_;
 
     void UpdateInfo()
     {

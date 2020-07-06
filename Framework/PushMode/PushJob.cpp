@@ -23,6 +23,7 @@
 #include "../HttpQueries/HttpQueriesRunner.h"
 #include "../TransferScheduler.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
 #include <json/writer.h>
@@ -97,7 +98,7 @@ namespace OrthancPlugins
     JobInfo&                          info_;
     std::string                       transactionUri_;
     HttpQueriesQueue                  queue_;
-    std::auto_ptr<HttpQueriesRunner>  runner_;
+    std::unique_ptr<HttpQueriesRunner>  runner_;
 
     void UpdateInfo()
     {

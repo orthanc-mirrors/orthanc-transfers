@@ -19,6 +19,8 @@
 
 #include "StatefulOrthancJob.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
+
 namespace OrthancPlugins
 {
   StatefulOrthancJob::JobInfo::JobInfo(StatefulOrthancJob& job) :
@@ -80,7 +82,7 @@ namespace OrthancPlugins
   
   OrthancPluginJobStepStatus StatefulOrthancJob::Step()
   {
-    std::auto_ptr<StateUpdate> update;
+    std::unique_ptr<StateUpdate> update;
 
     if (state_.get() == NULL)
     {        

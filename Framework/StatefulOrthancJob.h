@@ -21,6 +21,8 @@
 
 #include "../Resources/Orthanc/Plugins/OrthancPluginCppWrapper.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
+
 #include <memory>
 
 
@@ -59,7 +61,7 @@ namespace OrthancPlugins
     {
     private:
       OrthancPluginJobStepStatus  status_;
-      std::auto_ptr<IState>       state_;
+      std::unique_ptr<IState>       state_;
 
       explicit StateUpdate(OrthancPluginJobStepStatus status) :
         status_(status)
@@ -120,7 +122,7 @@ namespace OrthancPlugins
     
 
   private:
-    std::auto_ptr<IState>   state_;
+    std::unique_ptr<IState>   state_;
     JobInfo                 info_;
 
 

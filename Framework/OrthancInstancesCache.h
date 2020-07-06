@@ -23,6 +23,7 @@
 #include "TransferBucket.h"
 
 #include <Cache/LeastRecentlyUsedIndex.h>
+#include <Compatibility.h>  // For std::unique_ptr
 
 #include <boost/thread/mutex.hpp>
 
@@ -75,7 +76,7 @@ namespace OrthancPlugins
 
     // The mutex must be locked!
     void Store(const std::string& instanceId,
-               std::auto_ptr<SourceDicomInstance>& instance);
+               std::unique_ptr<SourceDicomInstance>& instance);
     
 
   public:

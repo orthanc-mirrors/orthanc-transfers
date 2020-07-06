@@ -19,6 +19,7 @@
 
 #include "PluginContext.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
 
@@ -50,9 +51,9 @@ namespace OrthancPlugins
   }
 
 
-  std::auto_ptr<PluginContext>& PluginContext::GetSingleton()
+  std::unique_ptr<PluginContext>& PluginContext::GetSingleton()
   {
-    static std::auto_ptr<PluginContext>  singleton_;
+    static std::unique_ptr<PluginContext>  singleton_;
     return singleton_;
   }
 

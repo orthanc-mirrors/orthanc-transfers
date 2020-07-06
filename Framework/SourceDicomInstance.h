@@ -21,6 +21,8 @@
 
 #include "DicomInstanceInfo.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
+
 #include <orthanc/OrthancCPlugin.h>
 
 #include <boost/noncopyable.hpp>
@@ -32,7 +34,7 @@ namespace OrthancPlugins
   {
   private:
     OrthancPluginMemoryBuffer         buffer_;
-    std::auto_ptr<DicomInstanceInfo>  info_;
+    std::unique_ptr<DicomInstanceInfo>  info_;
 
   public:
     explicit SourceDicomInstance(const std::string& instanceId);

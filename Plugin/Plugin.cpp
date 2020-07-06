@@ -24,6 +24,7 @@
 
 #include <EmbeddedResources.h>
 
+#include <Compatibility.h>  // For std::unique_ptr
 #include <ChunkedBuffer.h>
 #include <Compression/GzipCompressor.h>
 #include <Logging.h>
@@ -517,7 +518,7 @@ OrthancPluginJob* Unserializer(const char* jobType,
     {
       OrthancPlugins::TransferQuery query(source);
 
-      std::auto_ptr<OrthancPlugins::OrthancJob> job;
+      std::unique_ptr<OrthancPlugins::OrthancJob> job;
 
       if (type == JOB_TYPE_PULL)
       {

@@ -21,6 +21,7 @@
 
 #include "../DownloadArea.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
 
@@ -130,7 +131,7 @@ namespace OrthancPlugins
                                                         BucketCompression compression)
   {
     std::string uuid = Orthanc::Toolbox::GenerateUuid();
-    std::auto_ptr<Transaction> tmp(new Transaction(instances, buckets, compression));
+    std::unique_ptr<Transaction> tmp(new Transaction(instances, buckets, compression));
 
     LOG(INFO) << "Creating transaction to receive " << instances.size()
               << " instances (" << ConvertToMegabytes(tmp->GetDownloadArea().GetTotalSize())

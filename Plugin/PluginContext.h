@@ -22,6 +22,7 @@
 #include "../Framework/OrthancInstancesCache.h"
 #include "../Framework/PushMode/ActivePushTransactions.h"
 
+#include <Compatibility.h>  // For std::unique_ptr
 #include <MultiThreading/Semaphore.h>
 
 #include <map>
@@ -48,7 +49,7 @@ namespace OrthancPlugins
                   size_t memoryCacheSize,
                   unsigned int maxHttpRetries);
 
-    static std::auto_ptr<PluginContext>& GetSingleton();
+    static std::unique_ptr<PluginContext>& GetSingleton();
   
   public:
     OrthancInstancesCache& GetCache()
