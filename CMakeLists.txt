@@ -20,15 +20,12 @@ project(OrthancTransfers)
 
 set(ORTHANC_PLUGIN_VERSION "mainline")
 
-if (ORTHANC_PLUGIN_VERSION STREQUAL "mainline")
+if (ORTHANC_PLUGIN_VERSION STREQUAL "mainlinea")
   set(ORTHANC_FRAMEWORK_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
 else()
-  set(ORTHANC_FRAMEWORK_VERSION "1.5.6")
+  set(ORTHANC_FRAMEWORK_VERSION "1.7.2")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
-
-  # diff --new-file -urEb Orthanc-1.5.6.orig/ Orthanc-1.5.6 > orthanc-1.5.6.patch
-  set(ORTHANC_FRAMEWORK_PATCH "${CMAKE_SOURCE_DIR}/Resources/Patches/orthanc-1.5.6.patch")
 endif()
 
 
@@ -45,6 +42,8 @@ set(USE_SYSTEM_ORTHANC_SDK ON CACHE BOOL "Use the system version of the Orthanc 
 # Download and setup the Orthanc framework
 include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/CMake/DownloadOrthancFramework.cmake)
 
+include_directories(${ORTHANC_FRAMEWORK_ROOT})
+
 if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "system")
   link_libraries(${ORTHANC_FRAMEWORK_LIBRARIES})
 
@@ -54,7 +53,7 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "system")
   include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/CMake/GoogleTestConfiguration.cmake)
 
 else()
-  include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkParameters.cmake)
+  include(${ORTHANC_FRAMEWORK_ROOT}/../Resources/CMake/OrthancFrameworkParameters.cmake)
 
   set(ENABLE_LOCALE OFF)         # Disable support for locales (notably in Boost)
   set(ENABLE_GOOGLE_TEST ON)
@@ -63,29 +62,11 @@ else()
   set(ENABLE_MODULE_DICOM OFF)
   set(ENABLE_ZLIB ON)
 
-  include(${ORTHANC_FRAMEWORK_ROOT}/Resources/CMake/OrthancFrameworkConfiguration.cmake)
-  include_directories(
-    ${ORTHANC_FRAMEWORK_ROOT}/Sources
-    )
+  include(${ORTHANC_FRAMEWORK_ROOT}/../Resources/CMake/OrthancFrameworkConfiguration.cmake)
 endif()
 
 
 include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/Plugins/OrthancPluginsExports.cmake)
-
-
-# Possibly patch the Orthanc framework
-if (DEFINED ORTHANC_FRAMEWORK_PATCH AND
-    NOT EXISTS "${ORTHANC_FRAMEWORK_ROOT}/patched")
-  execute_process(
-    COMMAND ${PATCH_EXECUTABLE} -p0 -N -i ${ORTHANC_FRAMEWORK_PATCH}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    RESULT_VARIABLE Failure
-    )
-
-  if (Failure)
-    message(FATAL_ERROR "Error while patching a file")
-  endif()
-endif()
 
 
 # Check that the Orthanc SDK headers are available
@@ -107,7 +88,7 @@ endif()
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   execute_process(
     COMMAND 
-    ${PYTHON_EXECUTABLE} ${ORTHANC_FRAMEWORK_ROOT}/Resources/WindowsResources.py
+    ${PYTHON_EXECUTABLE} ${ORTHANC_FRAMEWORK_ROOT}/../Resources/WindowsResources.py
     ${ORTHANC_PLUGIN_VERSION} "TransfersAccelerator index plugin" OrthancTransfers.dll
     "TransfersAccelerator as a database back-end to Orthanc (index)"
     ERROR_VARIABLE Failure
