@@ -20,7 +20,7 @@ project(OrthancTransfers)
 
 set(ORTHANC_PLUGIN_VERSION "mainline")
 
-if (ORTHANC_PLUGIN_VERSION STREQUAL "mainlinea")
+if (ORTHANC_PLUGIN_VERSION STREQUAL "mainline")
   set(ORTHANC_FRAMEWORK_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
 else()
