@@ -24,8 +24,7 @@
 
 #include <Logging.h>
 #include <OrthancException.h>
-
-#include <json/reader.h>
+#include <Toolbox.h>
 
 
 namespace OrthancPlugins
@@ -49,13 +48,11 @@ namespace OrthancPlugins
   void DetectTransferPlugin::HandleAnswer(const void* answer,
                                           size_t size)
   {
-    Json::Reader reader;
     Json::Value value;
 
     bool enabled = false;
 
-    if (reader.parse(reinterpret_cast<const char*>(answer), 
-                     reinterpret_cast<const char*>(answer) + size, value) &&
+    if (Orthanc::Toolbox::ReadJson(value, answer, size) &&
         value.type() == Json::arrayValue)
     {
       // Loop over the plugins that are enabled on the remote peer

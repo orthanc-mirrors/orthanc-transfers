@@ -26,8 +26,6 @@
 #include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
-#include <json/writer.h>
-
 
 namespace OrthancPlugins
 {
@@ -202,8 +200,7 @@ namespace OrthancPlugins
                                       job.targetBucketSize_, 2 * job.targetBucketSize_,
                                       job_.query_.GetCompression());
 
-      Json::FastWriter writer;
-      createTransaction_ = writer.write(push);
+      Orthanc::Toolbox::WriteFastJson(createTransaction_, push);
 
       info_.SetContent("Peer", job_.query_.GetPeer());
       info_.SetContent("Compression", EnumerationToString(job_.query_.GetCompression()));

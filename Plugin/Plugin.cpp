@@ -28,6 +28,7 @@
 #include <ChunkedBuffer.h>
 #include <Compression/GzipCompressor.h>
 #include <Logging.h>
+#include <Toolbox.h>
 
 
 static bool DisplayPerformanceWarning()
@@ -187,14 +188,12 @@ static bool ParsePostBody(Json::Value& body,
                           OrthancPluginRestOutput* output,
                           const OrthancPluginHttpRequest* request)
 {
-  Json::Reader reader;
-
   if (request->method != OrthancPluginHttpMethod_Post)
   {
     OrthancPluginSendMethodNotAllowed(OrthancPlugins::GetGlobalContext(), output, "POST");
     return false;
   }
-  else if (reader.parse(request->body, request->body + request->bodySize, body))
+  else if (Orthanc::Toolbox::ReadJson(body, request->body, request->bodySize))
   {
     return true;
   }
@@ -237,9 +236,8 @@ void LookupInstances(OrthancPluginRestOutput* output,
     answer[KEY_INSTANCES].append(instance);
   }
   
-  Json::FastWriter writer;
-  std::string s = writer.write(answer);
-  
+  std::string s;
+  Orthanc::Toolbox::WriteFastJson(s, answer);  
   OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
@@ -450,8 +448,8 @@ void ScheduleSend(OrthancPluginRestOutput* output,
     lookup[KEY_ORIGINATOR_UUID] = context.GetPluginUuid();
     lookup[KEY_PEER] = remoteSelf;
 
-    Json::FastWriter writer;
-    std::string s = writer.write(lookup);
+    std::string s;
+    Orthanc::Toolbox::WriteFastJson(s, lookup);  
 
     Json::Value answer;
     if (DoPostPeer(answer, peers, query.GetPeer(), URI_PULL, s, context.GetMaxHttpRetries()) &&
@@ -513,8 +511,7 @@ OrthancPluginJob* Unserializer(const char* jobType,
     std::string tmp(serialized);
 
     Json::Value source;
-    Json::Reader reader;
-    if (reader.parse(tmp, source))
+    if (Orthanc::Toolbox::ReadJson(source, tmp))
     {
       OrthancPlugins::TransferQuery query(source);
 

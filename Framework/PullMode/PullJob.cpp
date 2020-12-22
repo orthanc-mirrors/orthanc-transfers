@@ -26,8 +26,6 @@
 #include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
-#include <json/writer.h>
-
 
 namespace OrthancPlugins
 {
@@ -169,8 +167,8 @@ namespace OrthancPlugins
 
     virtual StateUpdate* Step()
     {
-      Json::FastWriter writer;
-      const std::string lookup = writer.write(job_.query_.GetResources()); 
+      std::string lookup;
+      Orthanc::Toolbox::WriteFastJson(lookup, job_.query_.GetResources());
 
       Json::Value answer;
       if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_LOOKUP, lookup, job_.maxHttpRetries_))
