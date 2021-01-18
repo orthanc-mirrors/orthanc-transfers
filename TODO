@@ -1,0 +1,6 @@
+TODO
+====
+
+* Decide whether we should also duplicate the metadata from the local
+  Orthanc server to the remote Orthanc server:
+  https://groups.google.com/g/orthanc-users/c/YV_1HPRaPfo
