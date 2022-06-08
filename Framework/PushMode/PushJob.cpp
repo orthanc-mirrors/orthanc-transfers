@@ -202,6 +202,7 @@ namespace OrthancPlugins
 
       Orthanc::Toolbox::WriteFastJson(createTransaction_, push);
 
+      info_.SetContent("Resources", job_.query_.GetResources());
       info_.SetContent("Peer", job_.query_.GetPeer());
       info_.SetContent("Compression", EnumerationToString(job_.query_.GetCompression()));
       info_.SetContent("TotalInstances", static_cast<unsigned int>(scheduler.GetInstancesCount()));

@@ -1,6 +1,8 @@
 Pending changes in the mainline
 ===============================
 
+* Added "Resources" and "Originator" in the jobs "Content".  "Resources"
+  is copied directly from the query that created the job.
 * Support of dynamic linking against the system-wide Orthanc framework library
 
 

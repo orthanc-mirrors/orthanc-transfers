@@ -161,6 +161,11 @@ namespace OrthancPlugins
       job_(job),
       info_(info)
     {
+      if (job_.query_.HasOriginator())
+      {
+        info_.SetContent("Originator", job_.query_.GetOriginator());  
+      }
+      info_.SetContent("Resources", job_.query_.GetResources());
       info_.SetContent("Peer", job_.query_.GetPeer());
       info_.SetContent("Compression", EnumerationToString(job_.query_.GetCompression()));
     }
