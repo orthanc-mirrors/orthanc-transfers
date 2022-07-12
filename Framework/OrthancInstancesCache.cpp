@@ -20,6 +20,7 @@
 #include "OrthancInstancesCache.h"
 
 #include <Compatibility.h>  // For std::unique_ptr
+#include <Logging.h>
 
 namespace OrthancPlugins
 {
@@ -246,6 +247,7 @@ namespace OrthancPlugins
       CacheAccessor accessor(*this, instanceId);
       if (accessor.IsValid())
       {
+        // keeping this log for future (see TODO) LOG(INFO) << "++++ Chunk for " << instanceId << " is in cache";
         accessor.GetChunk(chunk, md5, offset, size);
         return;
       }
@@ -253,10 +255,11 @@ namespace OrthancPlugins
       
     // The instance was not in the cache, load it
     std::unique_ptr<SourceDicomInstance> instance(new SourceDicomInstance(instanceId));
-    instance->GetChunk(chunk, md5, 0, instance->GetInfo().GetSize());
+    instance->GetChunk(chunk, md5, offset, size);
 
     // Store the just-loaded DICOM instance into the cache
     {
+      // keeping this log for future (see TODO) LOG(ERROR) << "---- Chunk for " << instanceId << " not in cache -> adding it";
       boost::mutex::scoped_lock lock(mutex_);
       Store(instanceId, instance);
     }

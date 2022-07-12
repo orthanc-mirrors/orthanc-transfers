@@ -3,6 +3,11 @@ Pending changes in the mainline
 
 => Minimum SDK version: 1.5.0 <=
 
+* improved error reporting
+* fixed transfer error occuring when the resources to transfer did not fit inside the
+  plugin cache (512 MB by default).  The error generated high CPU usage on the sending side
+  while compressing large files instead of a simple bucket and in NetworkProtocolError
+  on the receiving side.
 
 Version 1.1 (2022-06-22)
 ========================
