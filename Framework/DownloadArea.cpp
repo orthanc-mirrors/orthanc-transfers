@@ -55,7 +55,7 @@ namespace OrthancPlugins
 
       if (!stream_.good())
       {
-        throw Orthanc::OrthancException(Orthanc::ErrorCode_CannotWriteFile);
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_CannotWriteFile, std::string("Unable to write to ") + f.GetPath());
       }
     }
 
@@ -88,7 +88,7 @@ namespace OrthancPlugins
   {
     if (offset + size > info_.GetSize())
     {
-      throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange);
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange, "WriteChunk out of bounds");
     }
     else if (size > 0)
     {
@@ -151,7 +151,7 @@ namespace OrthancPlugins
 
     if (it == instances_.end())
     {
-      throw Orthanc::OrthancException(Orthanc::ErrorCode_UnknownResource);
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_UnknownResource, "Unknown instance");
     }
     else if (it->first != id ||
              it->second == NULL)
@@ -171,7 +171,8 @@ namespace OrthancPlugins
   {
     if (size != bucket.GetTotalSize())
     {
-      throw Orthanc::OrthancException(Orthanc::ErrorCode_NetworkProtocol);
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_NetworkProtocol, 
+        "WriteUncompressedBucket: " + boost::lexical_cast<std::string>(size) + " != " + boost::lexical_cast<std::string>(bucket.GetTotalSize()));
     }
 
     if (size == 0)
