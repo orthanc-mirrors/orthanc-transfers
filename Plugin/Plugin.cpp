@@ -452,7 +452,10 @@ void ScheduleSend(OrthancPluginRestOutput* output,
     Orthanc::Toolbox::WriteFastJson(s, lookup);  
 
     Json::Value answer;
-    if (DoPostPeer(answer, peers, query.GetPeer(), URI_PULL, s, context.GetMaxHttpRetries()) &&
+    std::map<std::string, std::string> headers;
+    query.GetHttpHeaders(headers);
+
+    if (DoPostPeer(answer, peers, query.GetPeer(), URI_PULL, s, context.GetMaxHttpRetries(), headers) &&
         answer.type() == Json::objectValue &&
         answer.isMember(KEY_ID) &&
         answer.isMember(KEY_PATH) &&

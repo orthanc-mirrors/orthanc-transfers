@@ -20,6 +20,7 @@
 #include "TransferQuery.h"
 
 #include <OrthancException.h>
+#include "Toolbox.h"
 
 
 namespace OrthancPlugins
@@ -74,6 +75,20 @@ namespace OrthancPlugins
     {
       priority_ = 0;
     }
+
+    if (body.isMember(KEY_SENDER_TRANSFER_ID))
+    {
+      if (body[KEY_SENDER_TRANSFER_ID].type() != Json::stringValue)
+      {
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_BadFileFormat, std::string(KEY_SENDER_TRANSFER_ID) + " should be a string");
+      }
+      senderTransferId_ = body[KEY_SENDER_TRANSFER_ID].asString();
+    }
+    else
+    {
+      senderTransferId_ = Orthanc::Toolbox::GenerateUuid();
+    }
+    
   }
 
 
@@ -89,6 +104,15 @@ namespace OrthancPlugins
     }
   }
 
+  const std::string& TransferQuery::GetSenderTransferID() const
+  {
+    return senderTransferId_;
+  }
+
+  void TransferQuery::GetHttpHeaders(std::map<std::string, std::string>& headers) const
+  {
+    headers[HEADER_KEY_SENDER_TRANSFER_ID] = senderTransferId_;
+  }
 
   void TransferQuery::Serialize(Json::Value& target) const
   {
@@ -96,7 +120,8 @@ namespace OrthancPlugins
     target[KEY_PEER] = peer_;
     target[KEY_RESOURCES] = resources_;
     target[KEY_COMPRESSION] = EnumerationToString(compression_);
-      
+    target[KEY_SENDER_TRANSFER_ID] = senderTransferId_;
+
     if (hasOriginator_)
     {
       target[KEY_ORIGINATOR_UUID] = originator_;

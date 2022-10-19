@@ -176,7 +176,10 @@ namespace OrthancPlugins
       Orthanc::Toolbox::WriteFastJson(lookup, job_.query_.GetResources());
 
       Json::Value answer;
-      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_LOOKUP, lookup, job_.maxHttpRetries_))
+      std::map<std::string, std::string> headers;
+      job_.query_.GetHttpHeaders(headers);
+
+      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_LOOKUP, lookup, job_.maxHttpRetries_, headers))
       {
         LOG(ERROR) << "Cannot retrieve the list of instances to pull from peer \"" 
                    << job_.query_.GetPeer()

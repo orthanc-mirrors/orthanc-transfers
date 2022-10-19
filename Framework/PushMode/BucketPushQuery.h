@@ -32,6 +32,7 @@ namespace OrthancPlugins
     std::string             peer_;
     std::string             uri_;
     BucketCompression       compression_;
+    std::map<std::string, std::string> headers_;
 
   public:
     BucketPushQuery(OrthancInstancesCache& cache,
@@ -39,7 +40,8 @@ namespace OrthancPlugins
                     const std::string& peer,
                     const std::string& transactionUri,
                     size_t bucketIndex,
-                    BucketCompression compression);
+                    BucketCompression compression,
+                    const std::map<std::string, std::string>& headers);
 
     virtual Orthanc::HttpMethod GetMethod() const
     {
@@ -60,5 +62,10 @@ namespace OrthancPlugins
 
     virtual void HandleAnswer(const void* answer,
                               size_t size);
+
+    virtual void GetHttpHeaders(std::map<std::string, std::string>& headers) const
+    {
+      headers = headers_;
+    }
   };
 }

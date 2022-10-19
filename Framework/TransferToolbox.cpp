@@ -83,7 +83,9 @@ namespace OrthancPlugins
                   size_t peerIndex,
                   const std::string& uri,
                   const std::string& body,
-                  unsigned int maxRetries)
+                  unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers
+)
   {
     unsigned int retry = 0;
 
@@ -91,7 +93,7 @@ namespace OrthancPlugins
     {
       try
       {
-        if (peers.DoPost(answer, peerIndex, uri, body))
+        if (peers.DoPost(answer, peerIndex, uri, body, headers))
         {
           return true;
         }
@@ -119,19 +121,21 @@ namespace OrthancPlugins
                   const std::string& peerName,
                   const std::string& uri,
                   const std::string& body,
-                  unsigned int maxRetries)
+                  unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers)
   {
     size_t index;
 
     return (peers.LookupName(index, peerName) &&
-            DoPostPeer(answer, peers, index, uri, body, maxRetries));
+            DoPostPeer(answer, peers, index, uri, body, maxRetries, headers));
   }
 
 
   bool DoDeletePeer(const OrthancPeers& peers,
                     size_t peerIndex,
                     const std::string& uri,
-                    unsigned int maxRetries)
+                    unsigned int maxRetries,
+                    const std::map<std::string, std::string>& headers)
   {
     unsigned int retry = 0;
 
@@ -139,7 +143,7 @@ namespace OrthancPlugins
     {
       try
       {
-        if (peers.DoDelete(peerIndex, uri))
+        if (peers.DoDelete(peerIndex, uri, headers))
         {
           return true;
         }

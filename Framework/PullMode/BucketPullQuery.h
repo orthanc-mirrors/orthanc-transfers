@@ -59,5 +59,8 @@ namespace OrthancPlugins
 
     virtual void HandleAnswer(const void* answer,
                               size_t size);
+    
+    virtual void GetHttpHeaders(std::map<std::string, std::string>& headers) const
+    {}
   };
 }

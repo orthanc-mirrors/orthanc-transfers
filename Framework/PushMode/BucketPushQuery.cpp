@@ -32,12 +32,14 @@ namespace OrthancPlugins
                                    const std::string& peer,
                                    const std::string& transactionUri,
                                    size_t bucketIndex,
-                                   BucketCompression compression) :
+                                   BucketCompression compression,
+                                   const std::map<std::string, std::string>& headers) :
     cache_(cache),
     bucket_(bucket),
     peer_(peer),
     uri_(transactionUri + "/" + boost::lexical_cast<std::string>(bucketIndex)),
-    compression_(compression)
+    compression_(compression),
+    headers_(headers)
   {
   }
 

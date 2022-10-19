@@ -34,6 +34,7 @@ namespace OrthancPlugins
     bool               hasOriginator_;
     std::string        originator_;
     int                priority_;
+    std::string        senderTransferId_;
 
   public:
     explicit TransferQuery(const Json::Value& body);
@@ -64,6 +65,10 @@ namespace OrthancPlugins
     {
       return priority_;
     }
+
+    const std::string& GetSenderTransferID() const;
+
+    void GetHttpHeaders(std::map<std::string, std::string>& headers) const;
 
     void Serialize(Json::Value& target) const;
   };

@@ -61,6 +61,9 @@ namespace OrthancPlugins
     virtual void HandleAnswer(const void* answer,
                               size_t size);
 
+    virtual void GetHttpHeaders(std::map<std::string, std::string>& headers) const
+    {/* no headers for this general purpose request*/}
+
     static void Apply(Result& result,
                       size_t threadsCount,
                       unsigned int timeout);

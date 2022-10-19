@@ -47,6 +47,7 @@ static const char* const KEY_REMOTE_SELF = "RemoteSelf";
 static const char* const KEY_RESOURCES = "Resources";
 static const char* const KEY_SIZE = "Size";
 static const char* const KEY_URL = "URL";
+static const char* const KEY_SENDER_TRANSFER_ID = "SenderTransferID";
 
 static const char* const URI_CHUNKS = "/transfers/chunks";
 static const char* const URI_JOBS = "/jobs";
@@ -57,6 +58,7 @@ static const char* const URI_PULL = "/transfers/pull";
 static const char* const URI_PUSH = "/transfers/push";
 static const char* const URI_SEND = "/transfers/send";
 
+static const char* const HEADER_KEY_SENDER_TRANSFER_ID = "sender-transfer-id";
   
 namespace OrthancPlugins
 {
@@ -81,17 +83,20 @@ namespace OrthancPlugins
                   size_t peerIndex,
                   const std::string& uri,
                   const std::string& body,
-                  unsigned int maxRetries);
+                  unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers);
 
   bool DoPostPeer(Json::Value& answer,
                   const OrthancPeers& peers,
                   const std::string& peerName,
                   const std::string& uri,
                   const std::string& body,
-                  unsigned int maxRetries);
+                  unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers);
 
   bool DoDeletePeer(const OrthancPeers& peers,
                     size_t peerIndex,
                     const std::string& uri,
-                    unsigned int maxRetries);
+                    unsigned int maxRetries,
+                    const std::map<std::string, std::string>& headers);
 }

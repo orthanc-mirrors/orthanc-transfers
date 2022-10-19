@@ -53,21 +53,23 @@ namespace OrthancPlugins
     {
       Json::Value answer;
       bool success = false;
+      std::map<std::string, std::string> headers;
+      job_.query_.GetHttpHeaders(headers);
 
       if (isCommit_)
       {
-        success = DoPostPeer(answer, job_.peers_, job_.peerIndex_, transactionUri_ + "/commit", "", job_.maxHttpRetries_);
+        success = DoPostPeer(answer, job_.peers_, job_.peerIndex_, transactionUri_ + "/commit", "", job_.maxHttpRetries_, headers);
       }
       else
       {
-        success = DoDeletePeer(job_.peers_, job_.peerIndex_, transactionUri_, job_.maxHttpRetries_);
+        success = DoDeletePeer(job_.peers_, job_.peerIndex_, transactionUri_, job_.maxHttpRetries_, headers);
       }
         
       if (!success)
       {
         if (isCommit_)
         {
-          LOG(ERROR) << "Cannot commit push transaction on remote peer: "
+          LOG(ERROR) << "Cannot commit push transaction on remote peer: " // TODO: add job ID
                      << job_.query_.GetPeer();
         }
           
@@ -129,13 +131,16 @@ namespace OrthancPlugins
       info_(info),
       transactionUri_(transactionUri)
     {
+      std::map<std::string, std::string> headers;
+      job_.query_.GetHttpHeaders(headers);
+
       queue_.SetMaxRetries(job.maxHttpRetries_);
       queue_.Reserve(buckets.size());
         
       for (size_t i = 0; i < buckets.size(); i++)
       {
         queue_.Enqueue(new BucketPushQuery(job.cache_, buckets[i], job.query_.GetPeer(),
-                                           transactionUri_, i, job.query_.GetCompression()));
+                                           transactionUri_, i, job.query_.GetCompression(), headers));
       }
 
       UpdateInfo();
@@ -212,7 +217,10 @@ namespace OrthancPlugins
     virtual StateUpdate* Step()
     {
       Json::Value answer;
-      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_PUSH, createTransaction_, job_.maxHttpRetries_))
+      std::map<std::string, std::string> headers;
+      job_.query_.GetHttpHeaders(headers);
+
+      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_PUSH, createTransaction_, job_.maxHttpRetries_, headers))
       {
         LOG(ERROR) << "Cannot create a push transaction to peer \"" 
                    << job_.query_.GetPeer()

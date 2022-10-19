@@ -135,6 +135,9 @@ namespace OrthancPlugins
     {
       query->ReadBody(body);              
     }       
+    
+    std::map<std::string, std::string> headers;
+    query->GetHttpHeaders(headers);
 
     unsigned int retry = 0;
 
@@ -149,19 +152,19 @@ namespace OrthancPlugins
         switch (query->GetMethod())
         {
           case Orthanc::HttpMethod_Get:
-            success = peers_.DoGet(answer, query->GetPeer(), query->GetUri());
+            success = peers_.DoGet(answer, query->GetPeer(), query->GetUri(), headers);
             break;
 
           case Orthanc::HttpMethod_Post:
-            success = peers_.DoPost(answer, query->GetPeer(), query->GetUri(), body);
+            success = peers_.DoPost(answer, query->GetPeer(), query->GetUri(), body, headers);
             break;
 
           case Orthanc::HttpMethod_Put:
-            success = peers_.DoPut(query->GetPeer(), query->GetUri(), body);
+            success = peers_.DoPut(query->GetPeer(), query->GetUri(), body, headers);
             break;
 
           case Orthanc::HttpMethod_Delete:
-            success = peers_.DoDelete(query->GetPeer(), query->GetUri());
+            success = peers_.DoDelete(query->GetPeer(), query->GetUri(), headers);
             break;
 
           default:
@@ -171,7 +174,7 @@ namespace OrthancPlugins
       catch (Orthanc::OrthancException& e)
       {
         LOG(ERROR) << "Unhandled exception during an HTTP query to peer \"" 
-                   << query->GetPeer() << "\": " << e.What();
+                   << query->GetPeer() <<  " " << query->GetUri() + "\": " << e.What();
         success = false;
       }
 
@@ -221,7 +224,10 @@ namespace OrthancPlugins
         }
         else
         {
-          LOG(INFO) << "Reached the maximum number of retries for a HTTP query";
+          if (maxRetries > 0)
+          {
+            LOG(ERROR) << "Reached the maximum number of retries for a HTTP query to peer " << query->GetPeer() <<  " " << query->GetUri();
+          }
 
           {
             boost::mutex::scoped_lock lock(mutex_);

@@ -20,6 +20,7 @@
 #pragma once
 
 #include <Enumerations.h>
+#include <map>
 
 #include <boost/noncopyable.hpp>
 
@@ -43,5 +44,7 @@ namespace OrthancPlugins
 
     virtual void HandleAnswer(const void* answer,
                               size_t size) = 0;
+
+    virtual void GetHttpHeaders(std::map<std::string, std::string>& headers) const = 0;
   };
 }
