@@ -1,9 +1,16 @@
 Pending changes in the mainline
 ===============================
 
-=> Minimum SDK version: 1.11.3 <=
 
-* updated to Orthanc Framework and SDK 1.11.3
+
+Version 1.4 (2023-02-06)
+========================
+
+=> Recommaneded SDK version: 1.11.2 <=
+=> Minimum SDK version: 1.5.0 <=
+
+* updated to Orthanc Framework and SDK 1.11.3: improved HTTP Client logs + avoid possible
+  crash in Job GetContent.
 * new "PeerConnectivityTimeout" configuration to configure the HTTP Timeout when checking
   if a remote peer has the transfer plugin enabled in /transfers/peers GET route.
   Default value is 2 which was the hardcoded default value in previous versions.
