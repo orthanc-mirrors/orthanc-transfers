@@ -111,6 +111,7 @@ namespace OrthancPlugins
 
   void TransferQuery::GetHttpHeaders(std::map<std::string, std::string>& headers) const
   {
+    headers["Expect"] = ""; // to avoid HttpClient performance warning
     headers[HEADER_KEY_SENDER_TRANSFER_ID] = senderTransferId_;
   }
 
