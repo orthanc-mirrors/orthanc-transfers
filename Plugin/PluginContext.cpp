@@ -29,18 +29,20 @@ namespace OrthancPlugins
                                size_t targetBucketSize,
                                size_t maxPushTransactions,
                                size_t memoryCacheSize,
-                               unsigned int maxHttpRetries) :
+                               unsigned int maxHttpRetries,
+                               unsigned int peerConnectivityTimeout) :
     pushTransactions_(maxPushTransactions),
     semaphore_(threadsCount),
     pluginUuid_(Orthanc::Toolbox::GenerateUuid()),
     threadsCount_(threadsCount),
     targetBucketSize_(targetBucketSize),
-    maxHttpRetries_(maxHttpRetries)
+    maxHttpRetries_(maxHttpRetries),
+    peerConnectivityTimeout_(peerConnectivityTimeout)
   {
     cache_.SetMaxMemorySize(memoryCacheSize);
 
     LOG(INFO) << "Transfers accelerator will use " << threadsCount_ << " thread(s) to run HTTP queries";
-    LOG(INFO) << "Transfers accelerator will use keep local DICOM files in a memory cache of size: "
+    LOG(INFO) << "Transfers accelerator will keep local DICOM files in a memory cache of size: "
               << OrthancPlugins::ConvertToMegabytes(memoryCacheSize) << " MB";
     LOG(INFO) << "Transfers accelerator will aim at HTTP queries of size: "
               << OrthancPlugins::ConvertToKilobytes(targetBucketSize_) << " KB";
@@ -48,6 +50,8 @@ namespace OrthancPlugins
               << maxPushTransactions << " push transaction(s) at once";
     LOG(INFO) << "Transfers accelerator will retry "
               << maxHttpRetries_ << " time(s) if some HTTP query fails";
+    LOG(INFO) << "Transfers accelerator will use "
+              << peerConnectivityTimeout_ << " seconds as a timeout when checking peers connectivity";
   }
 
 
@@ -62,10 +66,11 @@ namespace OrthancPlugins
                                  size_t targetBucketSize,
                                  size_t maxPushTransactions,
                                  size_t memoryCacheSize,
-                                 unsigned int maxHttpRetries)
+                                 unsigned int maxHttpRetries,
+                                 unsigned int peerConnectivityTimeout)
   {
     GetSingleton().reset(new PluginContext(threadsCount, targetBucketSize,
-                                           maxPushTransactions, memoryCacheSize, maxHttpRetries));
+                                           maxPushTransactions, memoryCacheSize, maxHttpRetries, peerConnectivityTimeout));
   }
 
   

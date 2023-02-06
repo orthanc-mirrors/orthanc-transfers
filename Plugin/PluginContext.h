@@ -42,12 +42,14 @@ namespace OrthancPlugins
     size_t                   threadsCount_;
     size_t                   targetBucketSize_;
     unsigned int             maxHttpRetries_;
+    unsigned int             peerConnectivityTimeout_;
   
     PluginContext(size_t threadsCount,
                   size_t targetBucketSize,
                   size_t maxPushTransactions,
                   size_t memoryCacheSize,
-                  unsigned int maxHttpRetries);
+                  unsigned int maxHttpRetries,
+                  unsigned int peerConnectivityTimeout);
 
     static std::unique_ptr<PluginContext>& GetSingleton();
   
@@ -87,11 +89,17 @@ namespace OrthancPlugins
       return maxHttpRetries_;
     }
 
+    unsigned int GetPeerConnectivityTimeout() const
+    {
+      return peerConnectivityTimeout_;
+    }
+
     static void Initialize(size_t threadsCount,
                            size_t targetBucketSize,
                            size_t maxPushTransactions,
                            size_t memoryCacheSize,
-                           unsigned int maxHttpRetries);
+                           unsigned int maxHttpRetries,
+                           unsigned int peerConnectivityTimeout);
   
     static PluginContext& GetInstance();
 

@@ -579,7 +579,7 @@ void ServePeers(OrthancPluginRestOutput* output,
 
   OrthancPlugins::DetectTransferPlugin::Result detection;
   OrthancPlugins::DetectTransferPlugin::Apply
-    (detection, context.GetThreadsCount(), 2 /* timeout */);
+    (detection, context.GetThreadsCount(), context.GetPeerConnectivityTimeout());
 
   Json::Value result = Json::objectValue;
 
@@ -649,6 +649,7 @@ extern "C"
       size_t maxPushTransactions = 4;
       size_t memoryCacheSize = 512;    // In MB
       unsigned int maxHttpRetries = 0;
+      unsigned int peerConnectivityTimeout = 2;
     
       {
         OrthancPlugins::OrthancConfiguration config;
@@ -663,11 +664,12 @@ extern "C"
           memoryCacheSize = plugin.GetUnsignedIntegerValue("CacheSize", memoryCacheSize);
           maxPushTransactions = plugin.GetUnsignedIntegerValue("MaxPushTransactions", maxPushTransactions);
           maxHttpRetries = plugin.GetUnsignedIntegerValue("MaxHttpRetries", maxHttpRetries);
+          peerConnectivityTimeout = plugin.GetUnsignedIntegerValue("PeerConnectivityTimeout", peerConnectivityTimeout);
         }
       }
 
       OrthancPlugins::PluginContext::Initialize(threadsCount, targetBucketSize * KB, maxPushTransactions,
-                                                memoryCacheSize * MB, maxHttpRetries);
+                                                memoryCacheSize * MB, maxHttpRetries, peerConnectivityTimeout);
     
       OrthancPlugins::RegisterRestCallback<ServeChunks>
         (std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);
