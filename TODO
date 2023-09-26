@@ -3,6 +3,8 @@ TODO
 
 * Use the new Job plugin API
 
+* Transfer jobs are currently not serialized in the registry -> they won't restart !
+
 * Decide whether we should also duplicate the metadata from the local
   Orthanc server to the remote Orthanc server:
   https://groups.google.com/g/orthanc-users/c/YV_1HPRaPfo
