@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #
 # This maintenance script updates the content of the "Orthanc" folder
@@ -8,10 +8,10 @@
 import multiprocessing
 import os
 import stat
-import urllib2
+import urllib.request
 
 TARGET = os.path.join(os.path.dirname(__file__), 'Orthanc')
-PLUGIN_SDK_VERSION = [ '1.11.3' ]
+PLUGIN_SDK_VERSION = '1.12.1'
 REPOSITORY = 'https://hg.orthanc-server.com/orthanc/raw-file'
 
 FILES = [
@@ -21,18 +21,19 @@ FILES = [
     ('OrthancFramework/Resources/CMake/DownloadPackage.cmake', 'CMake'),
     ('OrthancFramework/Resources/CMake/GoogleTestConfiguration.cmake', 'CMake'),
     ('OrthancFramework/Resources/EmbedResources.py', 'CMake'),
-
-    ('OrthancFramework/Resources/Toolchains/LinuxStandardBaseToolchain.cmake', '.'),
-    ('OrthancFramework/Resources/Toolchains/MinGW-W64-Toolchain32.cmake', '.'),
-    ('OrthancFramework/Resources/Toolchains/MinGW-W64-Toolchain64.cmake', '.'),
-    ('OrthancFramework/Resources/Toolchains/MinGWToolchain.cmake', '.'),
-
+    ('OrthancFramework/Resources/Toolchains/LinuxStandardBaseToolchain.cmake', 'Toolchains'),
+    ('OrthancFramework/Resources/Toolchains/MinGW-W64-Toolchain32.cmake', 'Toolchains'),
+    ('OrthancFramework/Resources/Toolchains/MinGW-W64-Toolchain64.cmake', 'Toolchains'),
+    ('OrthancFramework/Resources/Toolchains/MinGWToolchain.cmake', 'Toolchains'),
     ('OrthancServer/Plugins/Samples/Common/ExportedSymbolsPlugins.list', 'Plugins'),
     ('OrthancServer/Plugins/Samples/Common/OrthancPluginCppWrapper.cpp', 'Plugins'),
     ('OrthancServer/Plugins/Samples/Common/OrthancPluginCppWrapper.h', 'Plugins'),
     ('OrthancServer/Plugins/Samples/Common/OrthancPluginException.h', 'Plugins'),
     ('OrthancServer/Plugins/Samples/Common/OrthancPluginsExports.cmake', 'Plugins'),
     ('OrthancServer/Plugins/Samples/Common/VersionScriptPlugins.map', 'Plugins'),
+
+    # Specific to DICOMweb plugin
+    ('OrthancServer/Resources/OrthancLogo.png', '.'),
 ]
 
 SDK = [
@@ -44,7 +45,7 @@ def Download(x):
     branch = x[0]
     source = x[1]
     target = os.path.join(TARGET, x[2])
-    print target
+    print(target)
 
     try:
         os.makedirs(os.path.dirname(target))
@@ -53,8 +54,12 @@ def Download(x):
 
     url = '%s/%s/%s' % (REPOSITORY, branch, source)
 
-    with open(target, 'w') as f:
-        f.write(urllib2.urlopen(url).read())
+    with open(target, 'wb') as f:
+        try:
+            f.write(urllib.request.urlopen(url).read())
+        except:
+            print('ERROR %s' % url)
+            raise
 
 
 commands = []
@@ -64,13 +69,12 @@ for f in FILES:
                       f[0],
                       os.path.join(f[1], os.path.basename(f[0])) ])
 
-for version in PLUGIN_SDK_VERSION:
-    for f in SDK:
-        commands.append([
-            'Orthanc-%s' % version, 
-            'Plugins/Include/%s' % f,
-            'Sdk-%s/%s' % (version, f) 
-        ])
+for f in SDK:
+    commands.append([
+        'Orthanc-%s' % PLUGIN_SDK_VERSION, 
+        'OrthancServer/Plugins/Include/%s' % f,
+        'Sdk-%s/%s' % (PLUGIN_SDK_VERSION, f) 
+    ])
 
 
 pool = multiprocessing.Pool(10)  # simultaneous downloads
