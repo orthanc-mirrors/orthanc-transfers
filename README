@@ -10,7 +10,7 @@ speeds up the transfers of DICOM instances over Internet.
 
 Instructions for the compilation and usage of the plugin is part of
 the Orthanc Book:
-http://book.orthanc-server.com/plugins/transfers.html
+https://orthanc.uclouvain.be/book/plugins/transfers.html
 
 
 Content
@@ -27,7 +27,7 @@ Contributing
 
 Instructions for contributing to the Orthanc project are included in
 the Orthanc Book:
-https://book.orthanc-server.com/developers/repositories.html
+https://orthanc.uclouvain.be/book/developers/repositories.html
 
 
 Licensing
