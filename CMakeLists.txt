@@ -189,4 +189,7 @@ set_target_properties(UnitTests PROPERTIES
   COMPILE_FLAGS -DORTHANC_ENABLE_LOGGING_PLUGIN=0
   )
 
-DefineSourceBasenameForTarget(UnitTests)
+if (COMMAND DefineSourceBasenameForTarget)
+  DefineSourceBasenameForTarget(OrthancTransfers)
+  DefineSourceBasenameForTarget(UnitTests)
+endif()
