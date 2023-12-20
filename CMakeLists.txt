@@ -182,3 +182,8 @@ target_link_libraries(UnitTests ${GOOGLE_TEST_LIBRARIES})
 set_target_properties(UnitTests PROPERTIES
   COMPILE_FLAGS -DORTHANC_ENABLE_LOGGING_PLUGIN=0
   )
+
+if (COMMAND DefineSourceBasenameForTarget)
+  DefineSourceBasenameForTarget(OrthancTransfers)
+  DefineSourceBasenameForTarget(UnitTests)
+endif()
