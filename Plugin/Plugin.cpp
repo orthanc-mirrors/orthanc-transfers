@@ -639,8 +639,8 @@ extern "C"
       return -1;
     }
 
-    OrthancPluginSetDescription(context, "Accelerates transfers and provides "
-                                "storage commitment between Orthanc peers");
+    OrthancPlugins::SetDescription(PLUGIN_NAME, "Accelerates transfers and provides "
+                                   "storage commitment between Orthanc peers");
 
     try
     {
@@ -708,7 +708,7 @@ extern "C"
       std::string explorer;
       Orthanc::EmbeddedResources::GetFileResource
         (explorer, Orthanc::EmbeddedResources::ORTHANC_EXPLORER);
-      OrthancPluginExtendOrthancExplorer(context, explorer.c_str());
+      OrthancPlugins::ExtendOrthancExplorer(PLUGIN_NAME, explorer);
     }
     catch (Orthanc::OrthancException& e)
     {
