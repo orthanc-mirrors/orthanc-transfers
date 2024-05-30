@@ -1,5 +1,7 @@
 # Orthanc - A Lightweight, RESTful DICOM Store
-# Copyright (C) 2018-2021 Osimis S.A., Belgium
+# Copyright (C) 2018-2023 Osimis S.A., Belgium
+# Copyright (C) 2024-2024 Orthanc Team SRL, Belgium
+# Copyright (C) 2021-2024 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Affero General Public License
