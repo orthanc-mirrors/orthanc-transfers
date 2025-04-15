@@ -136,6 +136,8 @@ namespace OrthancPlugins
       std::map<std::string, std::string> headers;
       job_.query_.GetHttpHeaders(headers);
 
+      headers["Content-Type"] = "application/octet-stream";
+
       queue_.SetMaxRetries(job.maxHttpRetries_);
       queue_.Reserve(buckets.size());
         
@@ -221,6 +223,8 @@ namespace OrthancPlugins
       Json::Value answer;
       std::map<std::string, std::string> headers;
       job_.query_.GetHttpHeaders(headers);
+
+      headers["Content-Type"] = "application/json";
 
       if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_PUSH, createTransaction_, job_.maxHttpRetries_, headers))
       {
