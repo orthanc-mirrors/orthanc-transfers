@@ -619,15 +619,15 @@ extern "C"
 {
   ORTHANC_PLUGINS_API int32_t OrthancPluginInitialize(OrthancPluginContext* context)
   {
-#if ORTHANC_FRAMEWORK_VERSION_IS_ABOVE(1, 7, 2)
-    Orthanc::Logging::InitializePluginContext(context);
+    OrthancPlugins::SetGlobalContext(context, PLUGIN_NAME);
+
+#if ORTHANC_FRAMEWORK_VERSION_IS_ABOVE(1, 12, 4)
+    Orthanc::Logging::InitializePluginContext(context, PLUGIN_NAME);
 #else
-    Orthanc::Logging::Initialize(context);
+    Orthanc::Logging::InitializePluginContext(context);
 #endif
     
     assert(DisplayPerformanceWarning());
-
-    OrthancPlugins::SetGlobalContext(context);
     
     /* Check the version of the Orthanc core */
     if (OrthancPluginCheckVersion(context) == 0)

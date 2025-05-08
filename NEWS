@@ -1,8 +1,12 @@
 Pending changes in the mainline
 ===============================
 
+Minimum plugin SDK (for build): 1.12.1
+Minimum Orthanc runtime: 1.12.1
+
 * now setting "Content-Type" HTTP headers in outgoing POST requests.
   (https://discourse.orthanc-server.org/t/transfer-accelerator-plugin-http-header-compatibility/5725)
+* Maintenance: Use Orthanc SDK 1.12.4 by default to benefit from more detailed logging.
 
 
 Version 1.5 (2024-03-26)
