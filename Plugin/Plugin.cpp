@@ -486,7 +486,8 @@ void ScheduleSend(OrthancPluginRestOutput* output,
     SubmitJob(output, new OrthancPlugins::PushJob(query, context.GetCache(),
                                                   context.GetThreadsCount(),
                                                   context.GetTargetBucketSize(),
-                                                  context.GetMaxHttpRetries()),
+                                                  context.GetMaxHttpRetries(),
+                                                  context.GetPeerCommitTimeout()),
               query.GetPriority());
   }
 }
@@ -535,7 +536,8 @@ OrthancPluginJob* Unserializer(const char* jobType,
                                               context.GetCache(),
                                               context.GetThreadsCount(),
                                               context.GetTargetBucketSize(),
-                                              context.GetMaxHttpRetries()));
+                                              context.GetMaxHttpRetries(),
+                                              context.GetPeerCommitTimeout()));
       }
 
       if (job.get() == NULL)
@@ -652,6 +654,7 @@ extern "C"
       size_t memoryCacheSize = 512;    // In MB
       unsigned int maxHttpRetries = 0;
       unsigned int peerConnectivityTimeout = 2;
+      unsigned int peerCommitTimeout = 600;
     
       {
         OrthancPlugins::OrthancConfiguration config;
@@ -667,11 +670,12 @@ extern "C"
           maxPushTransactions = plugin.GetUnsignedIntegerValue("MaxPushTransactions", maxPushTransactions);
           maxHttpRetries = plugin.GetUnsignedIntegerValue("MaxHttpRetries", maxHttpRetries);
           peerConnectivityTimeout = plugin.GetUnsignedIntegerValue("PeerConnectivityTimeout", peerConnectivityTimeout);
+          peerCommitTimeout = plugin.GetUnsignedIntegerValue("PeerCommitTimeout", peerCommitTimeout);
         }
       }
 
       OrthancPlugins::PluginContext::Initialize(threadsCount, targetBucketSize * KB, maxPushTransactions,
-                                                memoryCacheSize * MB, maxHttpRetries, peerConnectivityTimeout);
+                                                memoryCacheSize * MB, maxHttpRetries, peerConnectivityTimeout, peerCommitTimeout);
     
       OrthancPlugins::RegisterRestCallback<ServeChunks>
         (std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);

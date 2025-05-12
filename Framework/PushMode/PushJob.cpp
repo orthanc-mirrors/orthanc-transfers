@@ -60,7 +60,7 @@ namespace OrthancPlugins
 
       if (isCommit_)
       {
-        success = DoPostPeer(answer, job_.peers_, job_.peerIndex_, transactionUri_ + "/commit", "", job_.maxHttpRetries_, headers);
+        success = DoPostPeer(answer, job_.peers_, job_.peerIndex_, transactionUri_ + "/commit", "", job_.maxHttpRetries_, headers, job_.commitTimeout_);
       }
       else
       {
@@ -263,13 +263,15 @@ namespace OrthancPlugins
                    OrthancInstancesCache& cache,
                    size_t threadsCount,
                    size_t targetBucketSize,
-                   unsigned int maxHttpRetries) :
+                   unsigned int maxHttpRetries,
+                   unsigned int commitTimeout) :
     StatefulOrthancJob(JOB_TYPE_PUSH),
     cache_(cache),
     query_(query),
     threadsCount_(threadsCount),
     targetBucketSize_(targetBucketSize),
-    maxHttpRetries_(maxHttpRetries)
+    maxHttpRetries_(maxHttpRetries),
+    commitTimeout_(commitTimeout)
   {
     if (!peers_.LookupName(peerIndex_, query_.GetPeer()))
     {

@@ -41,6 +41,7 @@ namespace OrthancPlugins
     OrthancPeers             peers_;
     size_t                   peerIndex_;
     unsigned int             maxHttpRetries_;
+    unsigned int             commitTimeout_;
  
     virtual StateUpdate* CreateInitialState(JobInfo& info);
     
@@ -49,6 +50,7 @@ namespace OrthancPlugins
             OrthancInstancesCache& cache,
             size_t threadsCount,
             size_t targetBucketSize,
-            unsigned int maxHttpRetries);
+            unsigned int maxHttpRetries,
+            unsigned int commitTimeout);
   };
 }

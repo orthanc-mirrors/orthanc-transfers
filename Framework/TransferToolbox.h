@@ -90,6 +90,15 @@ namespace OrthancPlugins
 
   bool DoPostPeer(Json::Value& answer,
                   const OrthancPeers& peers,
+                  size_t peerIndex,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers,
+                  unsigned int timeout);
+
+  bool DoPostPeer(Json::Value& answer,
+                  const OrthancPeers& peers,
                   const std::string& peerName,
                   const std::string& uri,
                   const std::string& body,

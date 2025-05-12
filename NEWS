@@ -6,6 +6,10 @@ Minimum Orthanc runtime: 1.12.1
 
 * now setting "Content-Type" HTTP headers in outgoing POST requests.
   (https://discourse.orthanc-server.org/t/transfer-accelerator-plugin-http-header-compatibility/5725)
+* new "PeerCommitTimeout" configuration to configure the HTTP Timeout when committing
+  a push transfer.  During that time, the remote peer plugin must import all files into Orthanc
+  which can take a significant time if the transfer is large.  The default value is
+  set to 600 seconds.
 * Maintenance: Use Orthanc SDK 1.12.4 by default to benefit from more detailed logging.
 
 

@@ -32,14 +32,16 @@ namespace OrthancPlugins
                                size_t maxPushTransactions,
                                size_t memoryCacheSize,
                                unsigned int maxHttpRetries,
-                               unsigned int peerConnectivityTimeout) :
+                               unsigned int peerConnectivityTimeout,
+                               unsigned int peerCommitTimeout) :
     pushTransactions_(maxPushTransactions),
     semaphore_(threadsCount),
     pluginUuid_(Orthanc::Toolbox::GenerateUuid()),
     threadsCount_(threadsCount),
     targetBucketSize_(targetBucketSize),
     maxHttpRetries_(maxHttpRetries),
-    peerConnectivityTimeout_(peerConnectivityTimeout)
+    peerConnectivityTimeout_(peerConnectivityTimeout),
+    peerCommitTimeout_(peerCommitTimeout)
   {
     cache_.SetMaxMemorySize(memoryCacheSize);
 
@@ -54,6 +56,8 @@ namespace OrthancPlugins
               << maxHttpRetries_ << " time(s) if some HTTP query fails";
     LOG(INFO) << "Transfers accelerator will use "
               << peerConnectivityTimeout_ << " seconds as a timeout when checking peers connectivity";
+    LOG(INFO) << "Transfers accelerator will use "
+              << peerCommitTimeout_ << " seconds as a timeout when committing push transfer";
   }
 
 
@@ -69,10 +73,11 @@ namespace OrthancPlugins
                                  size_t maxPushTransactions,
                                  size_t memoryCacheSize,
                                  unsigned int maxHttpRetries,
-                                 unsigned int peerConnectivityTimeout)
+                                 unsigned int peerConnectivityTimeout,
+                                 unsigned int peerCommitTimeout)
   {
     GetSingleton().reset(new PluginContext(threadsCount, targetBucketSize,
-                                           maxPushTransactions, memoryCacheSize, maxHttpRetries, peerConnectivityTimeout));
+                                           maxPushTransactions, memoryCacheSize, maxHttpRetries, peerConnectivityTimeout, peerCommitTimeout));
   }
 
   

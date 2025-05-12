@@ -86,6 +86,45 @@ namespace OrthancPlugins
                   const std::string& uri,
                   const std::string& body,
                   unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers,
+                  unsigned int timeout
+)
+  {
+    unsigned int retry = 0;
+
+    for (;;)
+    {
+      try
+      {
+        if (peers.DoPost(answer, peerIndex, uri, body, headers, timeout))
+        {
+          return true;
+        }
+      }
+      catch (Orthanc::OrthancException&)
+      {
+      }
+
+      if (retry >= maxRetries)
+      {
+        return false;
+      }
+      else
+      {
+        // Wait 1 second before retrying
+        boost::this_thread::sleep(boost::posix_time::seconds(1));
+        retry++;
+      }
+    }
+  }
+
+
+  bool DoPostPeer(Json::Value& answer,
+                  const OrthancPeers& peers,
+                  size_t peerIndex,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries,
                   const std::map<std::string, std::string>& headers
 )
   {
