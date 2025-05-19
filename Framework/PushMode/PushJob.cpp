@@ -25,12 +25,78 @@
 #include "../HttpQueries/HttpQueriesRunner.h"
 #include "../TransferScheduler.h"
 
-#include <Compatibility.h>  // For std::unique_ptr
+#include <boost/algorithm/string.hpp> // For boost::iequals and boost::split
+#include <Compatibility.h> // For std::unique_ptr
 #include <Logging.h>
-
 
 namespace OrthancPlugins
 {
+
+  /**
+   * This is a helper function to extract cookie name and value into a single
+   * string from the response http headers.  The extracted cookie string can
+   * then be used to set the "Cookie" header in subsequent requests.
+   *
+   * Orthanc appears not to support multiple "Set-Cookie" headers in the
+   * response, so only the last `set-cookie` header is included in the headers
+   * map. This means that if the server responds with multiple cookies, only the
+   * last one will be extracted.
+   *
+   * This is a very simlified implementation for use by the Accelerator plugin.
+   * It is not a substitute for a full cookie jar implementation. However, with
+   * the Authenication plugin, a simplified implementation where any cookie from
+   * the initial request can be used in the finite number of subsequent
+   * requests is sufficient.
+   */
+  static std::string ExtractCookiesFromHeaders(const std::map<std::string, std::string> &headers)
+  {
+    // an array of cookies returned by the server
+    std::vector<std::string> cookies;
+
+    for (const auto &header : headers)
+    {
+      auto headerName = header.first;
+      auto headerValue = header.second;
+
+      // Check if the header is a Set-Cookie header (case-insensitive)
+      if (boost::iequals(headerName, "set-cookie"))
+      {
+        // Set-Cookie headers are formatted as:
+        // Set-Cookie: <cookie-name>=<cookie-value>; <attributes>
+        // or
+        // Set-Cookie: <cookie-name>=<cookie-value>
+        //
+        // We only need the cookie name and value, so we split on ';'
+        // and take the first part
+
+        // Split the cookie string by ';' and take the first part (the actual cookie)
+        std::vector<std::string> tokens;
+        Orthanc::Toolbox::SplitString(tokens, headerValue, ';');
+        
+        if(!tokens.empty())
+        {
+          std::string cookie = tokens[0];
+          std::string trimmedCookie = boost::trim_copy(cookie);
+          cookies.push_back(trimmedCookie);
+        }
+      }
+    }
+
+    // Join all cookies with "; "
+    std::ostringstream result;
+    for (size_t i = 0; i < cookies.size(); ++i)
+    {
+      if (i > 0)
+      {
+        result << "; ";
+      }
+      
+      result << cookies[i];
+    }
+
+    return result.str();
+  }
+
   class PushJob::FinalState : public IState
   {
   private:
@@ -38,16 +104,24 @@ namespace OrthancPlugins
     JobInfo&        info_;
     std::string     transactionUri_;
     bool            isCommit_;
-      
+    /**
+     * Stores any cookies to be sent in the http request. These
+     * cookies are obtained from the response headers of the
+     * initialisation request for the push job.
+     */
+    std::string     cookieHeader_;
+
   public:
     FinalState(const PushJob& job,
                JobInfo& info,
                const std::string& transactionUri,
-               bool isCommit) :
+               bool isCommit,
+               const std::string &cookieHeader) :
       job_(job),
       info_(info),
       transactionUri_(transactionUri),
-      isCommit_(isCommit)
+      isCommit_(isCommit),
+      cookieHeader_(cookieHeader)
     {
     }
 
@@ -57,6 +131,11 @@ namespace OrthancPlugins
       bool success = false;
       std::map<std::string, std::string> headers;
       job_.query_.GetHttpHeaders(headers);
+
+      if (!cookieHeader_.empty())
+      {
+        headers["Cookie"] = cookieHeader_;
+      }
 
       if (isCommit_)
       {
@@ -76,7 +155,7 @@ namespace OrthancPlugins
         }
           
         return StateUpdate::Failure();
-      } 
+      }
       else if (isCommit_)
       {
         return StateUpdate::Success();
@@ -96,11 +175,17 @@ namespace OrthancPlugins
   class PushJob::PushBucketsState : public IState
   {
   private:
-    const PushJob&                    job_;
-    JobInfo&                          info_;
-    std::string                       transactionUri_;
-    HttpQueriesQueue                  queue_;
-    std::unique_ptr<HttpQueriesRunner>  runner_;
+    const PushJob&                     job_;
+    JobInfo&                           info_;
+    std::string                        transactionUri_;
+    HttpQueriesQueue                   queue_;
+    std::unique_ptr<HttpQueriesRunner> runner_;
+    /**
+     * Stores any cookies to be sent in the http request. These
+     * cookies are obtained from the response headers of the
+     * initialisation request for the push job.
+     */
+    std::string                        cookieHeader_;
 
     void UpdateInfo()
     {
@@ -128,15 +213,21 @@ namespace OrthancPlugins
     PushBucketsState(const PushJob&  job,
                      JobInfo& info,
                      const std::string& transactionUri,
-                     const std::vector<TransferBucket>& buckets) :
+                     const std::vector<TransferBucket>& buckets,
+                     const std::string& cookieHeader) : 
       job_(job),
       info_(info),
-      transactionUri_(transactionUri)
+      transactionUri_(transactionUri),
+      cookieHeader_(cookieHeader)
     {
       std::map<std::string, std::string> headers;
       job_.query_.GetHttpHeaders(headers);
 
       headers["Content-Type"] = "application/octet-stream";
+      if (!cookieHeader_.empty())
+      {
+        headers["Cookie"] = cookieHeader_;
+      }
 
       queue_.SetMaxRetries(job.maxHttpRetries_);
       queue_.Reserve(buckets.size());
@@ -168,11 +259,11 @@ namespace OrthancPlugins
 
         case HttpQueriesQueue::Status_Success:
           // Commit transaction on remote peer
-          return StateUpdate::Next(new FinalState(job_, info_, transactionUri_, true));
+          return StateUpdate::Next(new FinalState(job_, info_, transactionUri_, true, cookieHeader_));
 
         case HttpQueriesQueue::Status_Failure:
           // Discard transaction on remote peer
-          return StateUpdate::Next(new FinalState(job_, info_, transactionUri_, false));
+          return StateUpdate::Next(new FinalState(job_, info_, transactionUri_, false, cookieHeader_));
 
         default:
           throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
@@ -222,11 +313,12 @@ namespace OrthancPlugins
     {
       Json::Value answer;
       std::map<std::string, std::string> headers;
+      std::map<std::string, std::string> answerHeaders;
       job_.query_.GetHttpHeaders(headers);
 
       headers["Content-Type"] = "application/json";
 
-      if (!DoPostPeer(answer, job_.peers_, job_.peerIndex_, URI_PUSH, createTransaction_, job_.maxHttpRetries_, headers))
+      if (!DoPostPeer(answer, answerHeaders, job_.peers_, job_.peerIndex_, URI_PUSH, createTransaction_, job_.maxHttpRetries_, headers, job_.commitTimeout_))
       {
         LOG(ERROR) << "Cannot create a push transaction to peer \"" 
                    << job_.query_.GetPeer()
@@ -243,8 +335,34 @@ namespace OrthancPlugins
       }
 
       std::string transactionUri = answer[KEY_PATH].asString();
+      /**
+       * Some load balancers such as AWS Application Load Balancer use Sticky
+       * Session Cookies, which are set by the load balancer on a request. If
+       * subsequent requests include these cookies, then the load balancer will
+       * route the request to the same backend server.
+       *
+       * This is important for the Accelerated Transfers plugin as the push
+       * transactions are statefull, meaning all requests (initialisation, each
+       * bucket and commit) must be sent to the same backend server, otherwise
+       * the transfer job will fail.
+       *
+       * In order to support cookie based sticky sessions, we need to extract the
+       * cookies from the initilisation request and include them in the
+       * subsequent requests for this transfer job.answerHeaders
+       *
+       * Currently, the answerHeaders maps only contains 1 Set-Cookie headers
+       * (the last one).  This is a limitation of the current HttpClient
+       * implementation. Meaning that any subsequent requests in this transfer
+       * job will only include the last `Set-Cookie` header from the initial
+       * request.
+       *
+       * The cookieHeader is passed into each subsequent JobStates
+       * (PushBucketsState and FinalState) so that the cookies are included in
+       * the headers of each request.
+       */
+      std::string cookieHeader = ExtractCookiesFromHeaders(answerHeaders);
 
-      return StateUpdate::Next(new PushBucketsState(job_, info_, transactionUri, buckets_));
+      return StateUpdate::Next(new PushBucketsState(job_, info_, transactionUri, buckets_, cookieHeader));
     }
 
     virtual void Stop(OrthancPluginJobStopReason reason)

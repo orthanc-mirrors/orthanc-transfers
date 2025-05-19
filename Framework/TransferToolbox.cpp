@@ -90,13 +90,37 @@ namespace OrthancPlugins
                   unsigned int timeout
 )
   {
+    std::map<std::string, std::string> answerHeadersNotUsed;
+    return DoPostPeer(answer, 
+                      answerHeadersNotUsed,
+                      peers,
+                      peerIndex,
+                      uri,
+                      body,
+                      maxRetries,
+                      headers,
+                      timeout);
+  }
+
+
+  bool DoPostPeer(Json::Value& answer,
+                  std::map<std::string, std::string>& answerHeaders,
+                  const OrthancPeers& peers,
+                  size_t peerIndex,
+                  const std::string& uri,
+                  const std::string& body,
+                  unsigned int maxRetries,
+                  const std::map<std::string, std::string>& headers,
+                  unsigned int timeout
+)
+  {
     unsigned int retry = 0;
 
     for (;;)
     {
       try
       {
-        if (peers.DoPost(answer, peerIndex, uri, body, headers, timeout))
+        if (peers.DoPost(answer, answerHeaders, peerIndex, uri, body, headers, timeout))
         {
           return true;
         }
