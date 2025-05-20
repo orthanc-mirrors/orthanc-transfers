@@ -53,13 +53,10 @@ namespace OrthancPlugins
     // an array of cookies returned by the server
     std::vector<std::string> cookies;
 
-    for (const auto &header : headers)
+    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
     {
-      auto headerName = header.first;
-      auto headerValue = header.second;
-
       // Check if the header is a Set-Cookie header (case-insensitive)
-      if (boost::iequals(headerName, "set-cookie"))
+      if (boost::iequals(it->first, "set-cookie"))
       {
         // Set-Cookie headers are formatted as:
         // Set-Cookie: <cookie-name>=<cookie-value>; <attributes>
@@ -71,9 +68,9 @@ namespace OrthancPlugins
 
         // Split the cookie string by ';' and take the first part (the actual cookie)
         std::vector<std::string> tokens;
-        Orthanc::Toolbox::SplitString(tokens, headerValue, ';');
+        Orthanc::Toolbox::SplitString(tokens, it->second, ';');
         
-        if(!tokens.empty())
+        if (!tokens.empty())
         {
           std::string cookie = tokens[0];
           std::string trimmedCookie = boost::trim_copy(cookie);
