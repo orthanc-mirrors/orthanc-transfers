@@ -232,30 +232,30 @@ TEST(TransferScheduler, Basic)
   ASSERT_EQ("gzip", v["Compression"].asString());
   ASSERT_EQ(3u, v["Instances"].size());
 
-  for (Json::Value::ArrayIndex i = 0; i < 3; i++)
+  for (Json::Value::ArrayIndex j = 0; j < 3; j++)
   {
-    TransferBucket b(v["Buckets"][i]);
-    ASSERT_EQ(1u, b.GetChunksCount());
-    if (i == 0)
-      ASSERT_EQ("d1", b.GetChunkInstanceId(0));
-    else if (i == 1)
-      ASSERT_EQ("d2", b.GetChunkInstanceId(0));
+    TransferBucket t(v["Buckets"][j]);
+    ASSERT_EQ(1u, t.GetChunksCount());
+    if (j == 0)
+      ASSERT_EQ("d1", t.GetChunkInstanceId(0));
+    else if (j == 1)
+      ASSERT_EQ("d2", t.GetChunkInstanceId(0));
     else
-      ASSERT_EQ("d3", b.GetChunkInstanceId(0));
+      ASSERT_EQ("d3", t.GetChunkInstanceId(0));
         
-    ASSERT_EQ(0u, b.GetChunkOffset(0));
-    ASSERT_EQ(10u, b.GetChunkSize(0));
+    ASSERT_EQ(0u, t.GetChunkOffset(0));
+    ASSERT_EQ(10u, t.GetChunkSize(0));
   }
     
-  for (Json::Value::ArrayIndex i = 0; i < 3; i++)
+  for (Json::Value::ArrayIndex j = 0; j < 3; j++)
   {
-    DicomInstanceInfo d(v["Instances"][i]);
-    if (i == 0)
+    DicomInstanceInfo d(v["Instances"][j]);
+    if (j == 0)
     {
       ASSERT_EQ("d1", d.GetId());
       ASSERT_EQ("md1", d.GetMD5());
     }
-    else if (i == 1)
+    else if (j == 1)
     {
       ASSERT_EQ("d2", d.GetId());
       ASSERT_EQ("md2", d.GetMD5());

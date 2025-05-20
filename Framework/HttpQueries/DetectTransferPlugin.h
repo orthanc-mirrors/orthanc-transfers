@@ -24,6 +24,8 @@
 #include "IHttpQuery.h"
 #include "../TransferToolbox.h"
 
+#include <Compatibility.h>
+
 #include <map>
 
 
@@ -43,27 +45,27 @@ namespace OrthancPlugins
     DetectTransferPlugin(Result& result,
                          const std::string& peer);
 
-    virtual Orthanc::HttpMethod GetMethod() const
+    virtual Orthanc::HttpMethod GetMethod() const ORTHANC_OVERRIDE
     {
       return Orthanc::HttpMethod_Get;
     }
 
-    virtual const std::string& GetPeer() const
+    virtual const std::string& GetPeer() const ORTHANC_OVERRIDE
     {
       return peer_;
     }
 
-    virtual const std::string& GetUri() const
+    virtual const std::string& GetUri() const ORTHANC_OVERRIDE
     {
       return uri_;
     }
 
-    virtual void ReadBody(std::string& body) const;
+    virtual void ReadBody(std::string& body) const ORTHANC_OVERRIDE;
 
     virtual void HandleAnswer(const void* answer,
-                              size_t size);
+                              size_t size) ORTHANC_OVERRIDE;
 
-    virtual void GetHttpHeaders(std::map<std::string, std::string>& headers) const
+    virtual void GetHttpHeaders(std::map<std::string, std::string>& headers) const ORTHANC_OVERRIDE
     {/* no headers for this general purpose request*/}
 
     static void Apply(Result& result,

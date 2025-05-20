@@ -118,8 +118,11 @@ void ServeChunks(OrthancPluginRestOutput* output,
                                               buffer.GetNumBytes() < requestedSize); i++)
   {
     size_t instanceSize;
-    std::string md5;  // Ignored
-    context.GetCache().GetInstanceInfo(instanceSize, md5, instances[i]);
+
+    {
+      std::string md5;  // Ignored
+      context.GetCache().GetInstanceInfo(instanceSize, md5, instances[i]);
+    }
 
     if (offset >= instanceSize)
     {
@@ -144,8 +147,11 @@ void ServeChunks(OrthancPluginRestOutput* output,
       }
 
       std::string chunk;
-      std::string md5;  // Ignored
-      context.GetCache().GetChunk(chunk, md5, instances[i], offset, toRead);
+
+      {
+        std::string md5;  // Ignored
+        context.GetCache().GetChunk(chunk, md5, instances[i], offset, toRead);
+      }
         
       buffer.AddChunk(chunk);
       offset = 0;
@@ -265,7 +271,7 @@ void SchedulePull(OrthancPluginRestOutput* output,
                   const char* url,
                   const OrthancPluginHttpRequest* request)
 {
-  OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
+  const OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
   
   Json::Value body;
   if (!ParsePostBody(body, output, request))
@@ -334,7 +340,7 @@ void CreatePush(OrthancPluginRestOutput* output,
   result[KEY_ID] = id;
   result[KEY_PATH] = std::string(URI_PUSH) + "/" + id;
 
-  std::string s = result.toStyledString();  
+  std::string s = result.toStyledString();
   OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
 }
 
@@ -464,14 +470,14 @@ void ScheduleSend(OrthancPluginRestOutput* output,
         answer[KEY_ID].type() == Json::stringValue &&
         answer[KEY_PATH].type() == Json::stringValue)
     {
-      const std::string url = peers.GetPeerUrl(query.GetPeer());
+      const std::string peer = peers.GetPeerUrl(query.GetPeer());
 
       Json::Value result = Json::objectValue;
       result[KEY_PEER] = query.GetPeer();
       result[KEY_REMOTE_JOB] = answer[KEY_ID].asString();
-      result[KEY_URL] = url + answer[KEY_PATH].asString();
+      result[KEY_URL] = peer + answer[KEY_PATH].asString();
 
-      std::string s = result.toStyledString();  
+      s = result.toStyledString();
       OrthancPluginAnswerBuffer(OrthancPlugins::GetGlobalContext(), output, s.c_str(), s.size(), "application/json");
     }
     else
@@ -573,7 +579,7 @@ void ServePeers(OrthancPluginRestOutput* output,
                 const char* url,
                 const OrthancPluginHttpRequest* request)
 {
-  OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
+  const OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
   
   if (request->method != OrthancPluginHttpMethod_Get)
   {

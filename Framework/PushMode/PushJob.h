@@ -42,8 +42,9 @@ namespace OrthancPlugins
     size_t                   peerIndex_;
     unsigned int             maxHttpRetries_;
     unsigned int             commitTimeout_;
- 
-    virtual StateUpdate* CreateInitialState(JobInfo& info);
+
+  protected:
+    virtual StateUpdate* CreateInitialState(JobInfo& info) ORTHANC_OVERRIDE;
     
   public:
     PushJob(const TransferQuery& query,
