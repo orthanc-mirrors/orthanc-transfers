@@ -57,7 +57,7 @@ namespace OrthancPlugins
 
       if (!stream_.good())
       {
-        throw Orthanc::OrthancException(Orthanc::ErrorCode_CannotWriteFile, std::string("Unable to write to ") + f.GetPath());
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_CannotWriteFile, std::string("Unable to write to ") + Orthanc::SystemToolbox::PathToUtf8(f.GetPath()));
       }
     }
 
