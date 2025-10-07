@@ -20,13 +20,13 @@
 cmake_minimum_required(VERSION 2.8...4.0)
 project(OrthancTransfers)
 
-set(ORTHANC_PLUGIN_VERSION "mainline")
+set(ORTHANC_PLUGIN_VERSION "1.6")
 
 if (ORTHANC_PLUGIN_VERSION STREQUAL "mainline")
   set(ORTHANC_FRAMEWORK_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
 else()
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "9eb77f159b9d")  # while waiting for 1.12.10 (for  Orthanc::SystemToolbox::PathToUtf8())
+  set(ORTHANC_FRAMEWORK_VERSION "9eb77f159b9d")  # while waiting for 1.12.10 (for  Orthanc::SystemToolbox::PathToUtf8())
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
 endif()
 
