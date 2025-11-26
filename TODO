@@ -24,4 +24,9 @@ TODO
   I0712 13:33:36.929801 HttpClient.cpp:835] (http) New HTTP request to: http://127.0.0.1:8044//transfers/push/cbd4d5d2-46eb-4bbf-aad5-e231c87920fa/31 (timeout: 60s)
   -> cache should handle a list of "instances being loaded" and have 3 workers wait for it to become available
 
+  * add metrics:
+    - cache size
+    - commit duration (depending on size)
+    - active push transfers
   
+  * use multiple threads to commit (S3) 
