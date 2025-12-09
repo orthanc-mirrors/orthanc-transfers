@@ -47,14 +47,13 @@ namespace OrthancPlugins
     bool simulate_;
   
   public:
-    InstanceToCommit(DownloadArea::Instance* instance /* transfer ownership */, bool simulate) :
+    InstanceToCommit(DownloadArea::Instance* instance /* does not take ownership */, bool simulate) :
       instance_(instance),
       simulate_(simulate)
     {}
     
     virtual ~InstanceToCommit()
     {
-      delete instance_;
     }
 
     DownloadArea::Instance* GetInstance()
@@ -161,16 +160,13 @@ namespace OrthancPlugins
                          content.empty() ? NULL : content.c_str(), content.size(),
                          false))
         {
-          LOG(ERROR) << "Cannot import a transfered DICOM instance into Orthanc: "
-                     << info_.GetId();
-          throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile);
+          throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile, "Cannot import a transfered DICOM instance into Orthanc: " + info_.GetId());
         }
       }
     }
     else
     {
-      LOG(ERROR) << "Bad MD5 sum in a transfered DICOM instance: " << info_.GetId();
-      throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile);
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile, "Bad MD5 sum in a transfered DICOM instance: " +  info_.GetId());
     }
   }
 
@@ -283,20 +279,35 @@ namespace OrthancPlugins
 
     while (true)
     {
-      std::unique_ptr<DownloadArea::InstanceToCommit> instanceToCommit(dynamic_cast<DownloadArea::InstanceToCommit*>(that->instancesToCommit_.Dequeue(0)));
-      if (instanceToCommit.get() == NULL || that->workersShouldStop_)  // that's the signal to exit the thread
+      try
       {
-        LOG(INFO) << "Commit thread has completed";
-        return;
-      }
+        std::unique_ptr<DownloadArea::InstanceToCommit> instanceToCommit(dynamic_cast<DownloadArea::InstanceToCommit*>(that->instancesToCommit_.Dequeue(0)));
+        if (instanceToCommit.get() == NULL || that->workersShouldStop_)  // that's the signal to exit the thread
+        {
+          LOG(INFO) << "Commit thread has completed";
+          return;
+        }
 
-      instanceToCommit->GetInstance()->Commit(instanceToCommit->IsSimulate());
+        instanceToCommit->GetInstance()->Commit(instanceToCommit->IsSimulate());
+      }
+      catch(const Orthanc::OrthancException& e)
+      {
+        boost::mutex::scoped_lock lock(that->commitExceptionMutex_);
+        that->commitException_.reset(new Orthanc::OrthancException(e));
+      }
+      catch(...)
+      {
+        boost::mutex::scoped_lock lock(that->commitExceptionMutex_);
+        that->commitException_.reset(new Orthanc::OrthancException(Orthanc::ErrorCode_InternalError, "Unknown error in CommitWorker"));
+      }
     }
 
   }
 
   void DownloadArea::CommitInternal(bool simulate)
   {
+    commitException_.reset(NULL);
+
     commitThreads_.reserve(commitWorkerThreadsCount);
 
     for (uint32_t i = 0; i < commitWorkerThreadsCount; ++i)
@@ -313,7 +324,6 @@ namespace OrthancPlugins
         if (it->second != NULL)
         {
           instancesToCommit_.Enqueue(new DownloadArea::InstanceToCommit(it->second, simulate)); // transfers the ownership of the Instance to the queue
-          it->second = NULL;
         }
         else
         {
@@ -323,6 +333,12 @@ namespace OrthancPlugins
     }
 
     ClearThreads();
+
+    if (commitException_.get() != NULL)
+    {
+      LOG(ERROR) << "At least one of the commit threads failed with " << commitException_->What() << " " << commitException_->GetDetails();
+      throw Orthanc::OrthancException(*commitException_);
+    }
   }
 
   void DownloadArea::ClearThreads()

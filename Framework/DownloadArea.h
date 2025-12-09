@@ -69,6 +69,10 @@ namespace OrthancPlugins
     std::vector<boost::shared_ptr<boost::thread> > commitThreads_;
     Orthanc::SharedMessageQueue instancesToCommit_;
     bool          workersShouldStop_;
+    
+    boost::mutex  commitExceptionMutex_;
+    std::unique_ptr<Orthanc::OrthancException> commitException_;  // in case an error occurs inside a commit thread
+
 
     void Clear();
 
