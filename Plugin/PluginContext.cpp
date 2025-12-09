@@ -23,7 +23,7 @@
 
 #include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
-
+#include "../Framework/DownloadArea.h"
 
 namespace OrthancPlugins
 {
@@ -33,7 +33,8 @@ namespace OrthancPlugins
                                size_t memoryCacheSize,
                                unsigned int maxHttpRetries,
                                unsigned int peerConnectivityTimeout,
-                               unsigned int peerCommitTimeout) :
+                               unsigned int peerCommitTimeout,
+                               unsigned int commitThreadsCount) :
     pushTransactions_(maxPushTransactions),
     semaphore_(threadsCount),
     pluginUuid_(Orthanc::Toolbox::GenerateUuid()),
@@ -41,9 +42,11 @@ namespace OrthancPlugins
     targetBucketSize_(targetBucketSize),
     maxHttpRetries_(maxHttpRetries),
     peerConnectivityTimeout_(peerConnectivityTimeout),
-    peerCommitTimeout_(peerCommitTimeout)
+    peerCommitTimeout_(peerCommitTimeout),
+    commitThreadsCount_(commitThreadsCount)
   {
     cache_.SetMaxMemorySize(memoryCacheSize);
+    DownloadArea::SetCommitWorkerThreadsCount(commitThreadsCount_);
 
     LOG(INFO) << "Transfers accelerator will use " << threadsCount_ << " thread(s) to run HTTP queries";
     LOG(INFO) << "Transfers accelerator will keep local DICOM files in a memory cache of size: "
@@ -58,6 +61,8 @@ namespace OrthancPlugins
               << peerConnectivityTimeout_ << " seconds as a timeout when checking peers connectivity";
     LOG(INFO) << "Transfers accelerator will use "
               << peerCommitTimeout_ << " seconds as a timeout when committing push transfer";
+    LOG(INFO) << "Transfers accelerator will use "
+              << commitThreadsCount_ << " thread(s) to perform commit (on receiver's side)";
   }
 
 
@@ -74,10 +79,11 @@ namespace OrthancPlugins
                                  size_t memoryCacheSize,
                                  unsigned int maxHttpRetries,
                                  unsigned int peerConnectivityTimeout,
-                                 unsigned int peerCommitTimeout)
+                                 unsigned int peerCommitTimeout,
+                                 unsigned int commitThreadsCount)
   {
     GetSingleton().reset(new PluginContext(threadsCount, targetBucketSize,
-                                           maxPushTransactions, memoryCacheSize, maxHttpRetries, peerConnectivityTimeout, peerCommitTimeout));
+                                           maxPushTransactions, memoryCacheSize, maxHttpRetries, peerConnectivityTimeout, peerCommitTimeout, commitThreadsCount));
   }
 
   

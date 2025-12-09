@@ -661,6 +661,7 @@ extern "C"
       unsigned int maxHttpRetries = 0;
       unsigned int peerConnectivityTimeout = 2;
       unsigned int peerCommitTimeout = 600;
+      unsigned int commitThreadsCount = 1;
     
       {
         OrthancPlugins::OrthancConfiguration config;
@@ -677,11 +678,30 @@ extern "C"
           maxHttpRetries = plugin.GetUnsignedIntegerValue("MaxHttpRetries", maxHttpRetries);
           peerConnectivityTimeout = plugin.GetUnsignedIntegerValue("PeerConnectivityTimeout", peerConnectivityTimeout);
           peerCommitTimeout = plugin.GetUnsignedIntegerValue("PeerCommitTimeout", peerCommitTimeout);
+          commitThreadsCount = plugin.GetUnsignedIntegerValue("CommitThreadsCount", commitThreadsCount);
+
+          if (commitThreadsCount == 0)
+          {
+            LOG(ERROR) << "Invalid value for configuration \"Transfers.CommitThreadsCount\": " << commitThreadsCount;
+            return -1;
+          }
+
+          if (targetBucketSize == 0)
+          {
+            LOG(ERROR) << "Invalid value for configuration \"Transfers.BucketSize\": " << targetBucketSize;
+            return -1;
+          }
+
+          if (maxPushTransactions == 0)
+          {
+            LOG(ERROR) << "Invalid value for configuration \"Transfers.MaxPushTransactions\": " << maxPushTransactions;
+            return -1;
+          }
         }
       }
 
       OrthancPlugins::PluginContext::Initialize(threadsCount, targetBucketSize * KB, maxPushTransactions,
-                                                memoryCacheSize * MB, maxHttpRetries, peerConnectivityTimeout, peerCommitTimeout);
+                                                memoryCacheSize * MB, maxHttpRetries, peerConnectivityTimeout, peerCommitTimeout, commitThreadsCount);
     
       OrthancPlugins::RegisterRestCallback<ServeChunks>
         (std::string(URI_CHUNKS) + "/([.0-9a-f-]+)", true);

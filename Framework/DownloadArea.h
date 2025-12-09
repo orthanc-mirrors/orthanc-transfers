@@ -24,12 +24,16 @@
 #include "TransferScheduler.h"
 
 #include <TemporaryFile.h>
+#include <boost/thread/thread.hpp>
+#include <MultiThreading/SharedMessageQueue.h>
 
 namespace OrthancPlugins
 {
   class DownloadArea : public boost::noncopyable
   {
   private:
+    class InstanceToCommit;
+
     class Instance : public boost::noncopyable
     {
     private:
@@ -40,6 +44,9 @@ namespace OrthancPlugins
 
     public:
       explicit Instance(const DicomInstanceInfo& info);
+      
+      virtual ~Instance()
+      {}
 
       const DicomInstanceInfo& GetInfo() const
       {
@@ -56,12 +63,16 @@ namespace OrthancPlugins
 
     typedef std::map<std::string, Instance*>   Instances;
 
-    boost::mutex  mutex_;
+    boost::mutex  instancesMutex_;
     Instances     instances_;
     size_t        totalSize_;
-
+    std::vector<boost::shared_ptr<boost::thread> > commitThreads_;
+    Orthanc::SharedMessageQueue instancesToCommit_;
+    bool          workersShouldStop_;
 
     void Clear();
+
+    void ClearThreads();
 
     Instance& LookupInstance(const std::string& id);
 
@@ -73,13 +84,11 @@ namespace OrthancPlugins
     
     void CommitInternal(bool simulate);
 
+    static void CommitWorker(DownloadArea* that);
   public:
     explicit DownloadArea(const TransferScheduler& scheduler);
 
-    explicit DownloadArea(const std::vector<DicomInstanceInfo>& instances)
-    {
-      Setup(instances);
-    }
+    explicit DownloadArea(const std::vector<DicomInstanceInfo>& instances);
 
     ~DownloadArea()
     {
@@ -103,5 +112,7 @@ namespace OrthancPlugins
     void CheckMD5();
 
     void Commit();
+
+    static void SetCommitWorkerThreadsCount(uint32_t workersCount);
   };
 }

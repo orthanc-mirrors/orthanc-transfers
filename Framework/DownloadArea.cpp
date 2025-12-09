@@ -32,6 +32,42 @@
 
 namespace OrthancPlugins
 {
+  static uint32_t commitWorkerThreadsCount = 1;
+  static boost::mutex commitThreadsCounterMutex;
+  static uint32_t commitThreadsCounter = 0;
+
+  void DownloadArea::SetCommitWorkerThreadsCount(uint32_t workersCount)
+  {
+    commitWorkerThreadsCount = workersCount;
+  }
+
+  class DownloadArea::InstanceToCommit : public Orthanc::IDynamicObject
+  {
+    DownloadArea::Instance* instance_;
+    bool simulate_;
+  
+  public:
+    InstanceToCommit(DownloadArea::Instance* instance /* transfer ownership */, bool simulate) :
+      instance_(instance),
+      simulate_(simulate)
+    {}
+    
+    virtual ~InstanceToCommit()
+    {
+      delete instance_;
+    }
+
+    DownloadArea::Instance* GetInstance()
+    {
+      return instance_;
+    }
+
+    bool IsSimulate()
+    {
+      return simulate_;
+    }
+  };
+
   class DownloadArea::Instance::Writer : public boost::noncopyable
   {
   private:
@@ -141,6 +177,8 @@ namespace OrthancPlugins
 
   void DownloadArea::Clear()
   {
+    boost::mutex::scoped_lock lock(instancesMutex_);
+
     for (Instances::iterator it = instances_.begin(); 
          it != instances_.end(); ++it)
     {
@@ -157,6 +195,8 @@ namespace OrthancPlugins
 
   DownloadArea::Instance& DownloadArea::LookupInstance(const std::string& id)
   {
+    boost::mutex::scoped_lock lock(instancesMutex_);
+
     Instances::iterator it = instances_.find(id);
 
     if (it == instances_.end())
@@ -217,8 +257,10 @@ namespace OrthancPlugins
 
   void DownloadArea::Setup(const std::vector<DicomInstanceInfo>& instances)
   {
+    boost::mutex::scoped_lock lock(instancesMutex_);
+
     totalSize_ = 0;
-      
+    
     for (size_t i = 0; i < instances.size(); i++)
     {
       const std::string& id = instances[i].GetId();
@@ -229,30 +271,90 @@ namespace OrthancPlugins
       totalSize_ += instances[i].GetSize();
     }
   }
-    
+
+  
+  void DownloadArea::CommitWorker(DownloadArea* that)
+  {
+    {
+      boost::mutex::scoped_lock lock(commitThreadsCounterMutex);
+      Orthanc::Logging::SetCurrentThreadName(std::string("TF-COMMIT-") + boost::lexical_cast<std::string>(commitThreadsCounter++));
+      commitThreadsCounter %= 1000000;
+    }
+
+    while (true)
+    {
+      std::unique_ptr<DownloadArea::InstanceToCommit> instanceToCommit(dynamic_cast<DownloadArea::InstanceToCommit*>(that->instancesToCommit_.Dequeue(0)));
+      if (instanceToCommit.get() == NULL || that->workersShouldStop_)  // that's the signal to exit the thread
+      {
+        LOG(INFO) << "Commit thread has completed";
+        return;
+      }
+
+      instanceToCommit->GetInstance()->Commit(instanceToCommit->IsSimulate());
+    }
+
+  }
 
   void DownloadArea::CommitInternal(bool simulate)
   {
-    boost::mutex::scoped_lock lock(mutex_);
-      
-    for (Instances::iterator it = instances_.begin(); 
-         it != instances_.end(); ++it)
+    commitThreads_.reserve(commitWorkerThreadsCount);
+
+    for (uint32_t i = 0; i < commitWorkerThreadsCount; ++i)
     {
-      if (it->second != NULL)
+      commitThreads_.push_back(boost::shared_ptr<boost::thread>(new boost::thread(CommitWorker, this)));
+    }
+
+    {
+      boost::mutex::scoped_lock lock(instancesMutex_);
+      
+      for (Instances::iterator it = instances_.begin(); 
+          it != instances_.end(); ++it)
       {
-        it->second->Commit(simulate);
-        delete it->second;
-        it->second = NULL;
-      }
-      else
-      {
-        throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
+        if (it->second != NULL)
+        {
+          instancesToCommit_.Enqueue(new DownloadArea::InstanceToCommit(it->second, simulate)); // transfers the ownership of the Instance to the queue
+          it->second = NULL;
+        }
+        else
+        {
+          throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
+        }
       }
     }
+
+    ClearThreads();
+  }
+
+  void DownloadArea::ClearThreads()
+  {
+    for (uint32_t i = 0; i < commitWorkerThreadsCount; ++i)
+    {
+      instancesToCommit_.Enqueue(NULL); // exit message
+    }
+
+    instancesToCommit_.WaitEmpty(0);
+
+    for (uint32_t i = 0; i < commitWorkerThreadsCount; ++i)
+    {
+      if (commitThreads_[i]->joinable())
+      {
+        commitThreads_[i]->join();
+      }
+    }
+
+  }
+
+  DownloadArea::DownloadArea(const std::vector<DicomInstanceInfo>& instances)
+  : instancesToCommit_(0),
+    workersShouldStop_(false)
+  {
+    Setup(instances);
   }
 
 
   DownloadArea::DownloadArea(const TransferScheduler& scheduler)
+  : instancesToCommit_(0),
+    workersShouldStop_(false)
   {
     std::vector<DicomInstanceInfo> instances;
     scheduler.ListInstances(instances);
@@ -265,8 +367,6 @@ namespace OrthancPlugins
                                  size_t size,
                                  BucketCompression compression)
   {
-    boost::mutex::scoped_lock lock(mutex_);
-      
     switch (compression)
     {
       case BucketCompression_None:
@@ -296,7 +396,7 @@ namespace OrthancPlugins
     Orthanc::Toolbox::ComputeMD5(md5, data, size);
       
     {
-      boost::mutex::scoped_lock lock(mutex_);
+      boost::mutex::scoped_lock lock(instancesMutex_);
 
       Instances::const_iterator it = instances_.find(instanceId);
       if (it == instances_.end() ||

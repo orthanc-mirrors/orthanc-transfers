@@ -1,3 +1,12 @@
+Pending changes in the mainline
+===============================
+
+* new "CommitThreadsCount" configuration to configure the number of threads used to
+  perform the "commit" phase of a Push/Pull transfer.  A value > 1 is meaningful 
+  only if the storage is a distributed network storage (e.g object storage plugin).
+  A value of 1 means reading and writing are performed in sequence (default behaviour).
+
+
 Version 1.6 (2025-10-07)
 ========================
 
