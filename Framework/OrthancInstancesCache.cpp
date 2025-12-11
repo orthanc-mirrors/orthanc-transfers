@@ -53,6 +53,11 @@ namespace OrthancPlugins
              instance->second != NULL);
 
       instance_ = instance->second;
+
+      {
+        boost::mutex::scoped_lock lock(cache.cacheStatsMutex_);
+        ++cache.cacheHitCount_;
+      }
     }
   }
 
@@ -152,6 +157,11 @@ namespace OrthancPlugins
       memorySize_ += instance->GetInfo().GetSize();
       content_[instanceId] = instance.release();
 
+      {
+        boost::mutex::scoped_lock lock(cacheStatsMutex_);
+        ++cacheMissCount_;
+      }
+
       CheckInvariants();
     }
   }
@@ -223,11 +233,6 @@ namespace OrthancPlugins
       {
         size = accessor.GetInfo().GetSize();
         md5 = accessor.GetInfo().GetMD5();
-
-        {
-          boost::mutex::scoped_lock lock(cacheStatsMutex_);
-          ++cacheHitCount_;
-        }
         return;
       }
     }
@@ -241,11 +246,6 @@ namespace OrthancPlugins
     {
       boost::mutex::scoped_lock lock(mutex_);
       Store(instanceId, instance);
-    }
-
-    {
-      boost::mutex::scoped_lock lock(cacheStatsMutex_);
-      ++cacheMissCount_;
     }
   }
       
