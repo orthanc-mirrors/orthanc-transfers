@@ -68,6 +68,9 @@ namespace OrthancPlugins
     Content        content_;
     size_t         memorySize_;
     size_t         maxMemorySize_;
+    boost::mutex   cacheStatsMutex_;
+    size_t         cacheHitCount_;
+    size_t         cacheMissCount_;
 
 
     // The mutex must be locked!
@@ -106,5 +109,16 @@ namespace OrthancPlugins
                   std::string& md5,
                   const TransferBucket& bucket,
                   size_t chunkIndex);
+
+    size_t GetCacheHitCount() const
+    {
+      return cacheHitCount_;
+    }
+
+    size_t GetCacheMissCount() const
+    {
+      return cacheMissCount_;
+    }
+
   };
 }

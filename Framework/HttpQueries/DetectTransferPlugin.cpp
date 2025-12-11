@@ -96,7 +96,7 @@ namespace OrthancPlugins
     }
 
     {
-      OrthancPlugins::HttpQueriesRunner runner(queue, threadsCount);
+      OrthancPlugins::HttpQueriesRunner runner(queue, threadsCount, "TF-DETECT-");
       queue.WaitComplete();
     }
   }

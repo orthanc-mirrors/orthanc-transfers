@@ -22,14 +22,26 @@
 #include "HttpQueriesRunner.h"
 
 #include <OrthancException.h>
+#include <Logging.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 
 namespace OrthancPlugins
 {
+  static boost::mutex httpThreadsCounterMutex;
+  static uint32_t httpThreadsCounter = 0;
+
+ 
   void HttpQueriesRunner::Worker(HttpQueriesRunner* that)
   {
+    {
+      boost::mutex::scoped_lock lock(httpThreadsCounterMutex);
+      Orthanc::Logging::SetCurrentThreadName(std::string(that->threadNamePrefix_) + boost::lexical_cast<std::string>(httpThreadsCounter++));
+      httpThreadsCounter %= 1000000;
+    }
+
     while (that->continue_)
     {
       size_t size;
@@ -50,18 +62,25 @@ namespace OrthancPlugins
 
 
   HttpQueriesRunner::HttpQueriesRunner(HttpQueriesQueue& queue,
-                                       size_t threadsCount) :
+                                       size_t threadsCount,
+                                       const char* threadNamePrefix10charMax) :
     queue_(queue),
     continue_(true),
     start_(boost::posix_time::microsec_clock::local_time()),
     totalTraffic_(0),
-    lastUpdate_(start_)
+    lastUpdate_(start_),
+    threadNamePrefix_(threadNamePrefix10charMax)
   {
     if (threadsCount == 0)
     {
       throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange);
     }
       
+    if (strlen(threadNamePrefix_) > 10)
+    {
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange);
+    }
+
     workers_.resize(threadsCount);
 
     for (size_t i = 0; i < threadsCount; i++)

@@ -97,6 +97,8 @@ namespace OrthancPlugins
     delete found->second;
     content_.erase(found);
     index_.Invalidate(transactionUuid);
+
+    ++committedTransactionsCount_;
   }
 
 
@@ -111,7 +113,13 @@ namespace OrthancPlugins
       delete it->second;
     }
   }
-    
+   
+  size_t ActivePushTransactions::GetAvailablePushTransactions() const
+  {
+    boost::mutex::scoped_lock  lock(mutex_);
+    return maxSize_ - content_.size();
+  }
+
 
   void ActivePushTransactions::ListTransactions(std::vector<std::string>& target)
   {
@@ -138,9 +146,11 @@ namespace OrthancPlugins
     LOG(INFO) << "Creating transaction to receive " << instances.size()
               << " instances (" << ConvertToMegabytes(tmp->GetDownloadArea().GetTotalSize())
               << "MB) in push mode: " << uuid;
-      
+
     {
       boost::mutex::scoped_lock  lock(mutex_);
+
+      ++createdTransactionsCount_;
 
       // Drop the oldest active transaction, if not enough place
       if (content_.size() == maxSize_)
@@ -155,6 +165,8 @@ namespace OrthancPlugins
         content_.erase(transaction);
 
         LOG(WARNING) << "An inactive push transaction has been discarded: " << oldest;
+      
+        ++abortedTransactionsCount_;
       }
 
       index_.Add(uuid);

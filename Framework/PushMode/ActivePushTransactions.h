@@ -37,17 +37,23 @@ namespace OrthancPlugins
     typedef Orthanc::LeastRecentlyUsedIndex<std::string>  Index;
     typedef std::map<std::string, Transaction*>           Content;
 
-    boost::mutex  mutex_;
+    mutable boost::mutex  mutex_;
     Content       content_;
     Index         index_;
     size_t        maxSize_;
+    size_t        createdTransactionsCount_;
+    size_t        committedTransactionsCount_;
+    size_t        abortedTransactionsCount_;
 
     void FinalizeTransaction(const std::string& transactionUuid,
                              bool commit);
 
   public:
     explicit ActivePushTransactions(size_t maxSize) :
-      maxSize_(maxSize)
+      maxSize_(maxSize),
+      createdTransactionsCount_(0),
+      committedTransactionsCount_(0),
+      abortedTransactionsCount_(0)
     {
     }
 
@@ -72,6 +78,23 @@ namespace OrthancPlugins
     void Discard(const std::string& transactionUuid)
     {
       FinalizeTransaction(transactionUuid, false);
+    }
+
+    size_t GetAvailablePushTransactions() const;
+
+    size_t GetCreatedTransactionsCount() const
+    {
+      return createdTransactionsCount_;
+    }
+
+    size_t GetCommittedTransactionsCount() const
+    {
+      return committedTransactionsCount_;
+    }
+
+    size_t GetAbortedTransactionsCount() const
+    {
+      return abortedTransactionsCount_;
     }
   };
 }

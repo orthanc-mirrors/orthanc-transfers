@@ -5,6 +5,14 @@ Pending changes in the mainline
   perform the "commit" phase of a Push/Pull transfer.  A value > 1 is meaningful 
   only if the storage is a distributed network storage (e.g object storage plugin).
   A value of 1 means reading and writing are performed in sequence (default behaviour).
+* new metrics:
+  - orthanc_transfers_used_cache_size_mb
+  - orthanc_transfers_cache_hit_count
+  - orthanc_transfers_cache_miss_count
+  - orthanc_transfers_available_push_transactions_count
+  - orthanc_transfers_created_push_transfers_count
+  - orthanc_transfers_committed_push_transfers_count
+  - orthanc_transfers_aborted_push_transfers_count
 
 
 Version 1.6 (2025-10-07)

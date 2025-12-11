@@ -498,6 +498,48 @@ void ScheduleSend(OrthancPluginRestOutput* output,
   }
 }
 
+void RefreshMetricsCallback()
+{
+  OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_used_cache_size_mb", 
+                                      static_cast<int64_t>(context.GetCache().GetMemorySize() / (1024 * 1024)),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_cache_hit_count", 
+                                      static_cast<int64_t>(context.GetCache().GetCacheHitCount()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_cache_miss_count", 
+                                      static_cast<int64_t>(context.GetCache().GetCacheMissCount()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_available_push_transactions_count", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetAvailablePushTransactions()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_created_push_transfers_count", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetCreatedTransactionsCount()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_committed_push_transfers_count", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetCommittedTransactionsCount()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_aborted_push_transfers_count", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetAbortedTransactionsCount()),
+                                      OrthancPluginMetricsType_Default);
+
+
+}
+
 
 OrthancPluginJob* Unserializer(const char* jobType,
                                const char* serialized)
@@ -735,6 +777,7 @@ extern "C"
       }
 
       OrthancPluginRegisterJobsUnserializer(context, Unserializer);
+      OrthancPluginRegisterRefreshMetricsCallback(context, RefreshMetricsCallback);
 
       /* Extend the default Orthanc Explorer with custom JavaScript */
       std::string explorer;

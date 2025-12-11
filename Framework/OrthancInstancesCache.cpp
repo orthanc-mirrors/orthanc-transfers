@@ -159,7 +159,9 @@ namespace OrthancPlugins
 
   OrthancInstancesCache::OrthancInstancesCache() :
     memorySize_(0),
-    maxMemorySize_(512 * MB)  // 512 MB by default
+    maxMemorySize_(512 * MB),  // 512 MB by default
+    cacheHitCount_(0),
+    cacheMissCount_(0)
   {
   }
     
@@ -221,6 +223,11 @@ namespace OrthancPlugins
       {
         size = accessor.GetInfo().GetSize();
         md5 = accessor.GetInfo().GetMD5();
+
+        {
+          boost::mutex::scoped_lock lock(cacheStatsMutex_);
+          ++cacheHitCount_;
+        }
         return;
       }
     }
@@ -234,6 +241,11 @@ namespace OrthancPlugins
     {
       boost::mutex::scoped_lock lock(mutex_);
       Store(instanceId, instance);
+    }
+
+    {
+      boost::mutex::scoped_lock lock(cacheStatsMutex_);
+      ++cacheMissCount_;
     }
   }
       

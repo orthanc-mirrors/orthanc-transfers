@@ -242,7 +242,7 @@ namespace OrthancPlugins
     {
       if (runner_.get() == NULL)
       {
-        runner_.reset(new HttpQueriesRunner(queue_, job_.threadsCount_));
+        runner_.reset(new HttpQueriesRunner(queue_, job_.threadsCount_, "TF-PUSH-"));
       }
 
       HttpQueriesQueue::Status status = queue_.WaitComplete(200);

@@ -39,12 +39,14 @@ namespace OrthancPlugins
     boost::mutex                 mutex_;
     size_t                       totalTraffic_;
     boost::posix_time::ptime     lastUpdate_;
+    const char*                  threadNamePrefix_;
 
     static void Worker(HttpQueriesRunner* that);
 
   public:
     HttpQueriesRunner(HttpQueriesQueue& queue,
-                      size_t threadsCount);
+                      size_t threadsCount,
+                      const char* threadNamePrefix10charMax);
 
     ~HttpQueriesRunner();
 
