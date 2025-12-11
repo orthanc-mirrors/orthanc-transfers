@@ -44,6 +44,9 @@ namespace OrthancPlugins
     size_t        createdTransactionsCount_;
     size_t        committedTransactionsCount_;
     size_t        abortedTransactionsCount_;
+    uint64_t      totalReceivedBytesCount_;
+    uint64_t      totalTimeSpentInReceptionMs_;
+    uint64_t      totalTimeSpentInCommitMs_;
 
     void FinalizeTransaction(const std::string& transactionUuid,
                              bool commit);
@@ -53,7 +56,10 @@ namespace OrthancPlugins
       maxSize_(maxSize),
       createdTransactionsCount_(0),
       committedTransactionsCount_(0),
-      abortedTransactionsCount_(0)
+      abortedTransactionsCount_(0),
+      totalReceivedBytesCount_(0),
+      totalTimeSpentInReceptionMs_(0),
+      totalTimeSpentInCommitMs_(0)
     {
     }
 
@@ -96,5 +102,21 @@ namespace OrthancPlugins
     {
       return abortedTransactionsCount_;
     }
+
+    uint64_t GetTotalReceivedBytesCount() const
+    {
+      return totalReceivedBytesCount_;
+    }
+
+    uint64_t GetTotalTimeSpentInReceptionMs() const
+    {
+      return totalTimeSpentInReceptionMs_;
+    }
+
+    uint64_t GetTotalTimeSpentInCommitMs() const
+    {
+      return totalTimeSpentInCommitMs_;
+    }
+
   };
 }

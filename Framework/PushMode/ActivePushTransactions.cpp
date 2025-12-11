@@ -35,7 +35,7 @@ namespace OrthancPlugins
     DownloadArea                 area_;
     std::vector<TransferBucket>  buckets_;
     BucketCompression            compression_;
-
+    Orthanc::Toolbox::ElapsedTimer lifeSpanTimer_;
   public:
     Transaction(const std::vector<DicomInstanceInfo>& instances,
                 const std::vector<TransferBucket>& buckets,
@@ -74,6 +74,11 @@ namespace OrthancPlugins
     {
       area_.WriteBucket(GetBucket(bucketIndex), data, size, compression_);
     }
+
+    uint64_t GetLifespanMs()
+    {
+      return lifeSpanTimer_.GetElapsedMilliseconds();
+    }
   };
     
 
@@ -91,7 +96,14 @@ namespace OrthancPlugins
     assert(found->second != NULL);
     if (commit)
     {
+      Orthanc::Toolbox::ElapsedTimer timer;
+
+      totalReceivedBytesCount_ += found->second->GetDownloadArea().GetTotalSize();
+      totalTimeSpentInReceptionMs_ += found->second->GetLifespanMs();  // don't take the commit phase into account !
+
       found->second->GetDownloadArea().Commit();
+      
+      totalTimeSpentInCommitMs_ += timer.GetElapsedMilliseconds();
     }
 
     delete found->second;

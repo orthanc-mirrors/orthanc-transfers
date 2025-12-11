@@ -503,8 +503,8 @@ void RefreshMetricsCallback()
   OrthancPlugins::PluginContext& context = OrthancPlugins::PluginContext::GetInstance();
 
   OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
-                                      "orthanc_transfers_used_cache_size_mb", 
-                                      static_cast<int64_t>(context.GetCache().GetMemorySize() / (1024 * 1024)),
+                                      "orthanc_transfers_used_cache_size", 
+                                      static_cast<int64_t>(context.GetCache().GetMemorySize()),
                                       OrthancPluginMetricsType_Default);
 
   OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
@@ -518,25 +518,39 @@ void RefreshMetricsCallback()
                                       OrthancPluginMetricsType_Default);
 
   OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
-                                      "orthanc_transfers_available_push_transactions_count", 
+                                      "orthanc_transfers_available_push_count", 
                                       static_cast<int64_t>(context.GetActivePushTransactions().GetAvailablePushTransactions()),
                                       OrthancPluginMetricsType_Default);
 
   OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
-                                      "orthanc_transfers_created_push_transfers_count", 
+                                      "orthanc_transfers_created_push_count", 
                                       static_cast<int64_t>(context.GetActivePushTransactions().GetCreatedTransactionsCount()),
                                       OrthancPluginMetricsType_Default);
 
   OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
-                                      "orthanc_transfers_committed_push_transfers_count", 
+                                      "orthanc_transfers_committed_push_count", 
                                       static_cast<int64_t>(context.GetActivePushTransactions().GetCommittedTransactionsCount()),
                                       OrthancPluginMetricsType_Default);
 
   OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
-                                      "orthanc_transfers_aborted_push_transfers_count", 
+                                      "orthanc_transfers_aborted_push_count", 
                                       static_cast<int64_t>(context.GetActivePushTransactions().GetAbortedTransactionsCount()),
                                       OrthancPluginMetricsType_Default);
 
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_push_total_received_bytes_count", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetTotalReceivedBytesCount()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_push_total_time_spent_in_reception_ms", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetTotalTimeSpentInReceptionMs()),
+                                      OrthancPluginMetricsType_Default);
+
+  OrthancPluginSetMetricsIntegerValue(OrthancPlugins::GetGlobalContext(), 
+                                      "orthanc_transfers_push_total_time_spent_in_commit_ms", 
+                                      static_cast<int64_t>(context.GetActivePushTransactions().GetTotalTimeSpentInCommitMs()),
+                                      OrthancPluginMetricsType_Default);
 
 }
 
