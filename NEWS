@@ -1,5 +1,5 @@
-Pending changes in the mainline
-===============================
+Version 1.7 (2025-12-15)
+========================
 
 * new "CommitThreadsCount" configuration to configure the number of threads used to
   perform the "commit" phase of a Push/Pull transfer.  A value > 1 is meaningful 
@@ -14,7 +14,7 @@ Pending changes in the mainline
   - orthanc_transfers_committed_push_count
   - orthanc_transfers_aborted_push_count
   - orthanc_transfers_push_total_received_bytes_count
-  - orthanc_transfers_push_total_time_spent_in_reception_ms (from the creation of the push transfer till before the commit)
+  - orthanc_transfers_push_total_time_spent_in_reception_ms
   - orthanc_transfers_push_total_time_spent_in_commit_ms
 
 
