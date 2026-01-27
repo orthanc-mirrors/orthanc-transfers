@@ -23,10 +23,10 @@
 
 #include "../Resources/Orthanc/Plugins/OrthancPluginCppWrapper.h"
 
+#include <CompatibilityMath.h>
 #include <Logging.h>
 #include <OrthancException.h>
 
-#include <boost/math/special_functions/round.hpp>
 #include <boost/thread/thread.hpp>
 
 
@@ -35,14 +35,14 @@ namespace OrthancPlugins
   unsigned int ConvertToMegabytes(uint64_t value)
   {
     return static_cast<unsigned int>
-      (boost::math::round(static_cast<float>(value) / static_cast<float>(MB)));
+      (Orthanc::Math::iround(static_cast<float>(value) / static_cast<float>(MB)));
   }
 
 
   unsigned int ConvertToKilobytes(uint64_t value)
   {
     return static_cast<unsigned int>
-      (boost::math::round(static_cast<float>(value) / static_cast<float>(KB)));
+      (Orthanc::Math::iround(static_cast<float>(value) / static_cast<float>(KB)));
   }
 
 
