@@ -26,6 +26,10 @@
 #include <Compatibility.h>  // For std::unique_ptr
 #include <Logging.h>
 
+#if ORTHANC_FRAMEWORK_VERSION_IS_ABOVE(1, 12, 11)
+#  include <ElapsedTimer.h>
+#endif
+
 
 namespace OrthancPlugins
 {
@@ -35,7 +39,13 @@ namespace OrthancPlugins
     DownloadArea                 area_;
     std::vector<TransferBucket>  buckets_;
     BucketCompression            compression_;
+
+#if ORTHANC_FRAMEWORK_VERSION_IS_ABOVE(1, 12, 11)
+    Orthanc::ElapsedTimer          lifeSpanTimer_;
+#else
     Orthanc::Toolbox::ElapsedTimer lifeSpanTimer_;
+#endif
+
   public:
     Transaction(const std::vector<DicomInstanceInfo>& instances,
                 const std::vector<TransferBucket>& buckets,
@@ -96,7 +106,11 @@ namespace OrthancPlugins
     assert(found->second != NULL);
     if (commit)
     {
+#if ORTHANC_FRAMEWORK_VERSION_IS_ABOVE(1, 12, 11)
+      Orthanc::ElapsedTimer timer;
+#else
       Orthanc::Toolbox::ElapsedTimer timer;
+#endif
 
       totalReceivedBytesCount_ += found->second->GetDownloadArea().GetTotalSize();
       totalTimeSpentInReceptionMs_ += found->second->GetLifespanMs();  // don't take the commit phase into account !
