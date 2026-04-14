@@ -23,7 +23,8 @@
 
 #include <Logging.h>
 #include <OrthancException.h>
-#include <assert.h>
+
+#include <cassert>
 #include <boost/lexical_cast.hpp>
 
 
