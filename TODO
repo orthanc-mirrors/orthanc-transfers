@@ -30,3 +30,10 @@ TODO
     - active push transfers
   
   * use multiple threads to commit (S3) 
+
+  * TODO: Have a deep look at the gRPC patch to consume less HTTP threads and possibly improve bandwidth when there are a lot of concurrent jobs.
+    Identified issues:
+    - another HTTP port to open and secure (what about TLS termination ?  Nginx can probably handle it too)
+    - what about authentication ?  It's out of the standard HTTP server which means we probably need to re-implement a specific authentication
+      solution -> we can not re-use the authorization plugin
+    - expected compilation hell on other platforms (Windows, macOS, Linux LSB ...) -> we should probably include it only in the orthancteam/orthanc Docker images.
