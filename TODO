@@ -35,5 +35,7 @@ TODO
     Identified issues:
     - another HTTP port to open and secure (what about TLS termination ?  Nginx can probably handle it too)
     - what about authentication ?  It's out of the standard HTTP server which means we probably need to re-implement a specific authentication
-      solution -> we can not re-use the authorization plugin
+      solution -> we can not re-use the authorization plugin as such
     - expected compilation hell on other platforms (Windows, macOS, Linux LSB ...) -> we should probably include it only in the orthancteam/orthanc Docker images.
+    Reference: https://discourse.orthanc-server.org/t/initiative-for-enhancing-transfer-accelerator-plugin/5817/8
+
