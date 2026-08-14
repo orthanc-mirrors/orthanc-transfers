@@ -32,9 +32,7 @@
 
 namespace OrthancPlugins
 {
-  static uint32_t commitWorkerThreadsCount = 1;
-  static boost::mutex commitThreadsCounterMutex;
-  static uint32_t commitThreadsCounter = 0;
+  static uint32_t     commitWorkerThreadsCount = 1;
 
   void DownloadArea::SetCommitWorkerThreadsCount(uint32_t workersCount)
   {
@@ -271,11 +269,18 @@ namespace OrthancPlugins
   
   void DownloadArea::CommitWorker(DownloadArea* that)
   {
+    std::string threadName;
+
     {
+      static boost::mutex commitThreadsCounterMutex;
+      static uint32_t     commitThreadsCounter = 0;
+
       boost::mutex::scoped_lock lock(commitThreadsCounterMutex);
-      Orthanc::Logging::SetCurrentThreadName(std::string("TF-COMMIT-") + boost::lexical_cast<std::string>(commitThreadsCounter++));
+      threadName = std::string("TF-COMMIT-") + boost::lexical_cast<std::string>(commitThreadsCounter++);
       commitThreadsCounter %= 1000000;
     }
+
+    Orthanc::Logging::ScopedCurrentThreadNameSetter threadNameSetter(threadName);
 
     while (true)
     {

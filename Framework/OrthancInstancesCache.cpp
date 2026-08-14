@@ -81,7 +81,6 @@ namespace OrthancPlugins
 
   void OrthancInstancesCache::CheckInvariants()
   {
-#ifndef NDEBUG  
     size_t s = 0;
 
     assert(content_.size() == index_.GetSize());
@@ -105,7 +104,6 @@ namespace OrthancPlugins
              content_.size() == 1 &&
              memorySize_ == (content_.begin())->second->GetInfo().GetSize());
     }
-#endif
   }
 
 
