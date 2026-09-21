@@ -431,6 +431,31 @@ TEST(DownloadArea, Basic)
 }
 
 
+TEST(DownloadArea, StreamingMD5AcrossChunkBoundary)
+{
+  using namespace OrthancPlugins;
+
+  // Larger than DownloadArea's internal MD5 read-chunk size (1MB), and not
+  // a multiple of it, so an off-by-one in the chunked reading loop would
+  // corrupt the digest.
+  std::string s(3 * 1024 * 1024 + 12345, '\0');
+  for (size_t i = 0; i < s.size(); i++)
+  {
+    s[i] = static_cast<char>((i * 131 + 7) % 256);
+  }
+
+  std::string md5;
+  Orthanc::Toolbox::ComputeMD5(md5, s);
+
+  std::vector<DicomInstanceInfo> instances;
+  instances.push_back(DicomInstanceInfo("large", s.size(), md5));
+
+  DownloadArea area(instances);
+  area.WriteInstance("large", s.c_str(), s.size());
+  area.CheckMD5();
+}
+
+
 
 int main(int argc, char **argv)
 {

@@ -143,6 +143,13 @@ set(FRAMEWORK_SOURCES
   Resources/Orthanc/Plugins/OrthancPluginCppWrapper.cpp
   )
 
+if (STATIC_BUILD)
+  # Needed by Framework/DownloadArea.cpp for boost::iostreams::mapped_file_source:
+  # the framework's own static-build source list only compiles file_descriptor.cpp,
+  # as this plugin is the first to need memory-mapped files.
+  list(APPEND FRAMEWORK_SOURCES ${BOOST_SOURCES_DIR}/libs/iostreams/src/mapped_file.cpp)
+endif()
+
 
 
 add_library(OrthancTransfers SHARED

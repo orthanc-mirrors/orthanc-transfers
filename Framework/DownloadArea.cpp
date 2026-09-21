@@ -29,6 +29,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 
 namespace OrthancPlugins
 {
@@ -140,31 +141,58 @@ namespace OrthancPlugins
     }
   }
 
-  
   void DownloadArea::Instance::Commit(bool simulate) const
   {
-    std::string content;
-    Orthanc::SystemToolbox::ReadFile(content, file_.GetPath());
-
+    // Streams the file in fixed-size chunks instead of reading it fully
+    // into a heap-allocated std::string first (this matters for large
+    // instances: that buffer is anonymous memory, which the kernel can
+    // only reclaim under pressure by swapping it out).
     std::string md5;
-    Orthanc::Toolbox::ComputeMD5(md5, content);
+    Orthanc::SystemToolbox::ComputeFileMD5(md5, file_.GetPath());
 
-    if (md5 == info_.GetMD5())
-    {
-      if (!simulate)
-      {
-        Json::Value result;
-        if (!RestApiPost(result, "/instances", 
-                         content.empty() ? NULL : content.c_str(), content.size(),
-                         false))
-        {
-          throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile, "Cannot import a transfered DICOM instance into Orthanc: " + info_.GetId());
-        }
-      }
-    }
-    else
+    if (md5 != info_.GetMD5())
     {
       throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile, "Bad MD5 sum in a transfered DICOM instance: " +  info_.GetId());
+    }
+
+    if (!simulate)
+    {
+      Json::Value result;
+      bool success;
+
+      if (info_.GetSize() == 0)
+      {
+        success = RestApiPost(result, "/instances", NULL, 0, false);
+      }
+      else
+      {
+        // Memory-map the file instead of copying it into a std::string:
+        // the mapped pages are file-backed, so under memory pressure the
+        // kernel can drop them instantly (no swap write-back needed), and
+        // there is no read()-style kernel-to-userspace copy either.
+        boost::iostreams::mapped_file_source mapped;
+
+        try
+        {
+          mapped.open(file_.GetPath());
+        }
+        catch (const std::exception&)
+        {
+          throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile, "Cannot memory-map a transfered DICOM instance: " + info_.GetId());
+        }
+
+        if (!mapped.is_open())
+        {
+          throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile, "Cannot memory-map a transfered DICOM instance: " + info_.GetId());
+        }
+
+        success = RestApiPost(result, "/instances", mapped.data(), mapped.size(), false);
+      }
+
+      if (!success)
+      {
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_CorruptedFile, "Cannot import a transfered DICOM instance into Orthanc: " + info_.GetId());
+      }
     }
   }
 
